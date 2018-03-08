@@ -13,13 +13,11 @@ If the data is download from XMC website, remove the first line.
 
 Run the following code to remap features and labels.
   ```
-  $ python util/remap.py data/eurlex/train.txt data/eurlex/test.txt
-data/eurlex/train_remap.txt data/eurlex/test_remap.txt
+  $ python util/remap.py data/eurlex/train.txt data/eurlex/test.txt data/eurlex/train_remap.txt data/eurlex/test_remap.txt
   ```
 Do if-idf transformation:
   ```
-  $ python util/transform.py data/eurlex/train_remap.txt
-data/eurlex/test_remap.txt data/eurlex/train_remap_tfidf.txt data/eurlex/test_remap_tfidf.txt
+  $ python util/transform.py data/eurlex/train_remap.txt data/eurlex/test_remap.txt data/eurlex/train_remap_tfidf.txt data/eurlex/test_remap_tfidf.txt
   ```
 Go to linesearch folder and type `make` to build executable
 
@@ -35,7 +33,7 @@ Training with proposed initialization for EURLex:
 Note the we changed the stopping criterion for L2L2 solver, in
 liblinear, we stop when 
 
-  |f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2,
+  |f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2,
   where f initializations the primal function and pos/neg are # of
   positive/negative data (Descriptionfault 0.01)
 
@@ -52,13 +50,11 @@ process data
   $ javac util/LabelExtractor.java
   ```
   ```
-  $ java util/LabelExtractor data/eurlex/test_remap_tfidf.txt
-data/eurlex/test_remap_tfidf_zeroed.txt data/eurlex/GS.txt
+  $ java util/LabelExtractor data/eurlex/test_remap_tfidf.txt data/eurlex/test_remap_tfidf_zeroed.txt data/eurlex/GS.txt
   ```
 Produce output:
   ```
-  $ linesearch/predict data/eurlex/test_remap_tfidf_zeroed.txt
-linesearch/models/eu2.model linesearch/output/eu.out
+  $ linesearch/predict data/eurlex/test_remap_tfidf_zeroed.txt linesearch/models/eu2.model linesearch/output/eu.out
   ```
 Performance evaluation
   ```
@@ -72,9 +68,7 @@ Calculate Precision and NDCG:
   $ javac util/MultiLabelMetrics.java
   ```
   ```
-  $ java util/MultiLabelMetrics.java data/eurlex/GS.txt
-linesearch/final-output/top1.out linesearch/final-output/top3.out
-linesearch/final-output/top5.out
+  $ java util/MultiLabelMetrics.java data/eurlex/GS.txt linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
   ```
 
 Delete `top1.out` .. before evalute another model. 
