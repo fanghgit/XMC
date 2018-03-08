@@ -19,14 +19,13 @@ Do if-idf transformation:
   ```
   $ python util/transform.py data/eurlex/train_remap.txt data/eurlex/test_remap.txt data/eurlex/train_remap_tfidf.txt data/eurlex/test_remap_tfidf.txt
   ```
-Go to linesearch folder and type `make` to build executable
+Go to linesearch folder and type `make` to build executable(will generate many warnings now)
 
 Create folder to hold models: `mkdir linesearch/models`
 
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt
-linesearch/models/eu1.model
+  $ ./linesearch/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
   ```
 Training with proposed initialization for EURLex:
   ```
@@ -47,7 +46,7 @@ DISMEC's code is changed to use the same stopping criterion.
 
 Prediction: (Same as DISMEC)
 
-create new folders: `mkdir linesearch/output linesearch/final-output`
+create new folders: `mkdir linesearch/output`
 
 Process test data, split labels from test data
   ```
@@ -62,4 +61,14 @@ Performance evaluation
   $ python util/evaluate.py data/eurlex/GS.txt linesearch/output/eu2.out
   ```
 
+Training with DISMEC:
+  ```
+  ./dismec/dismec/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
+  ```
+  ```
+  dismec/dismec/predict data/eurlex/test_remap_tfidf_zeroed.txt dismec/dismec/models/eu_dismec.model dismec/dismec/output/eu_dismec.out
+  ```
+  ```
+  python util/evaluate.py data/eurlex/GS.txt dismec/dismec/output/eu_dismec.out
+  ```
 

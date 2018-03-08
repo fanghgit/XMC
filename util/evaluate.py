@@ -38,7 +38,7 @@ if __name__ == "__main__":
         else:
             pass
 
-        if line_actual == " \n":
+        if line_actual == "\n":
             print("test data with no label")
             continue
 
@@ -50,7 +50,6 @@ if __name__ == "__main__":
         pred_list = [int(x.split(':')[0]) for x in tmp if len(x) != 0 ]
         tmp_actual = line_actual.split(',')
         actual_list = [int(x) for x in tmp_actual]
-        print(n_test)
 
         deno1 = 0
         deno3 = 0
@@ -66,13 +65,13 @@ if __name__ == "__main__":
                 dcg1 += math.log(2)/math.log(i+2)
                 dcg3 += math.log(2)/math.log(i+2)
                 dcg5 += math.log(2)/math.log(i+2)
-        for i in range(k1+1, k2):
+        for i in range(k1, k2):
             if pred_list[i] in actual_list:
                 p3 += 1
                 p5 += 1
                 dcg3 += math.log(2)/math.log(i+2)
                 dcg5 += math.log(2)/math.log(i+2)
-        for i in range(k2+1,k3):
+        for i in range(k2,k3):
             if pred_list[i] in actual_list:
                 p5 += 1
                 dcg5 += math.log(2)/math.log(i+2)
