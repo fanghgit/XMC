@@ -13,7 +13,7 @@ If the data is download from XMC website, remove the first line.
 
 Run the following code to remap features and labels.
   ```
-  $ python util/remap.py data/eurlex/train.txt data/eurlex/test.txt data/eurlex/train_remap.txt data/eurlex/test_remap.txt
+  $ python util/remap.py data/eurlex/train.txt data/eurlex/test.txt data/eurlex/train_remap.txt data/eurlex/test_remap.txt -r 1
   ```
 Do if-idf transformation:
   ```

@@ -2502,7 +2502,7 @@ model* train(const problem *prob, const parameter *param)
 
 
 
-				for(i=0;i<200;i++)
+				for(i=0;i<nr_class;i++)
 				{
 					subproblem sub_prob_omp;
 					sub_prob_omp.l = l;
