@@ -18,6 +18,7 @@ def tfidf_transform(filename, output_file):
     line_number = 1
     num_docs = 0
     for line in f:
+        line = line.strip('\n')
         tmp = line.split(' ')
         if ':' in tmp[0]:
             sys.exit("input format wrong at line " + str(line_number))
@@ -38,6 +39,7 @@ def tfidf_transform(filename, output_file):
     line_number = 1
     f.seek(0)
     for line in f:
+        line = line.strip('\n')
         tmp = line.split(' ')
         if ':' in tmp[0]:
             sys.exit("input format wrong at line " + str(line_number))

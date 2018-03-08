@@ -20,6 +20,7 @@ def get_map(filename):
         label_counter = 1
         for line in f:
             line = line.strip('\n')
+            line = line.strip('\r')
             tmp = line.split(' ')
             if ':' in tmp[0]:
                 sys.exit("input format wrong at line " + str(line_number))
@@ -52,6 +53,7 @@ def remap_train(input_file, output, label_dict, feature_dict, label_start_flag, 
     line_number = 1
     for line in f:
         line = line.strip('\n')
+        line = line.strip('r')
         tmp = line.split(' ')
         if ':' in tmp[0]:
             sys.exit("input format wrong at line " + str(line_number))
@@ -106,6 +108,7 @@ def remap_test(input_file, output, label_dict, feature_dict, label_start_flag, f
     cur_label = len(label_dict)
     for line in f:
         line = line.strip('\n')
+        line = line.strip('\r')
         tmp = line.split(' ')
         if ':' in tmp[0]:
             sys.exit("input format wrong at line " + str(line_number))
