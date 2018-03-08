@@ -45,6 +45,8 @@ DISMEC's code is changed to use the same stopping criterion.
 
 Prediction: (Same as DISMEC)
 
+create new folders: `mkdir linesearch/output linesearch/final-output`
+
 process data
   ```
   $ javac util/LabelExtractor.java
