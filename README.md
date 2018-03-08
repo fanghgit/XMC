@@ -6,7 +6,7 @@ This repo currently includes the following folders:
   DISMEC)
 - dismec: DISMEC's code
 - linesearch: liblinear whose L2L2 is solved by Newton method with line
-  search.
+  search. linesearch in primary built on the code of [3]
 
 ## Quick Start
 If the data is download from XMC website, remove the first line.
@@ -73,4 +73,12 @@ Training with DISMEC:
   ```
   python util/evaluate.py data/eurlex/GS.txt dismec/dismec/output/eu_dismec.out
   ```
+## References:
+
+[1] Rohit Babbar, Bernhard Shoelkopf, DiSMEC - Distributed Sparse Machines for Extreme Multi-label Classification, 2017
+
+[2] R.-E. Fan, K.-W. Chang, C.-J. Hsieh, X.-R. Wang, and C.-J. Lin. LIBLINEAR: A library for large linear classification, 2008
+
+[3] C.-Y. Hsia, Y. Zhu, and C.-J. Lin. A study on trust region update rules in Newton methods for large-scale linear classification, 2017
+
 
