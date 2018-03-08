@@ -21,6 +21,8 @@ Do if-idf transformation:
   ```
 Go to linesearch folder and type `make` to build executable
 
+Create folder to hold models: `mkdir linesearch/models`
+
 Training with default initialization for EURLex:
   ```
   $ ./linesearch/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt
@@ -52,25 +54,25 @@ process data
   $ javac util/LabelExtractor.java
   ```
   ```
-  $ java util/LabelExtractor data/eurlex/test_remap_tfidf.txt data/eurlex/test_remap_tfidf_zeroed.txt data/eurlex/GS.txt
+  $ java -cp util LabelExtractor data/eurlex/test_remap_tfidf.txt data/eurlex/test_remap_tfidf_zeroed.txt data/eurlex/GS.txt
   ```
 Produce output:
   ```
-  $ linesearch/predict data/eurlex/test_remap_tfidf_zeroed.txt linesearch/models/eu2.model linesearch/output/eu.out
+  $ linesearch/predict data/eurlex/test_remap_tfidf_zeroed.txt linesearch/models/eu2.model linesearch/output/eu2.out
   ```
 Performance evaluation
   ```
   $ javac util/DistributedPredictor.java
   ```
   ```
-  $ java util/DistributedPredictor linesearch/output linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
+  $ java -cp util DistributedPredictor linesearch/output linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
   ```
 Calculate Precision and NDCG:
   ```
   $ javac util/MultiLabelMetrics.java
   ```
   ```
-  $ java util/MultiLabelMetrics.java data/eurlex/GS.txt linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
+  $ java -cp util MultiLabelMetrics.java data/eurlex/GS.txt linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
   ```
 
 Delete `top1.out` .. before evalute another model. 
