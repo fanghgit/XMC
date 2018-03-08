@@ -31,6 +31,8 @@ Training with proposed initialization for EURLex:
   ```
   $ ./linesearch/train -s 2 -m 1 -e 0.0001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
+Should be able to finish in around 200 sec.
+
 Note the we changed the stopping criterion for L2L2 solver, in
 liblinear, we stop when 
 
