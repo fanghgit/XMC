@@ -49,12 +49,9 @@ Prediction: (Same as DISMEC)
 
 create new folders: `mkdir linesearch/output linesearch/final-output`
 
-process data
+Process test data, split labels from test data
   ```
-  $ javac util/LabelExtractor.java
-  ```
-  ```
-  $ java -cp util LabelExtractor data/eurlex/test_remap_tfidf.txt data/eurlex/test_remap_tfidf_zeroed.txt data/eurlex/GS.txt
+  $ python util/splitlabel.py data/eurlex/test_remap_tfidf.txt data/eurlex/GS.txt data/eurlex/test_remap_tfidf_zeroed.txt
   ```
 Produce output:
   ```
@@ -62,19 +59,7 @@ Produce output:
   ```
 Performance evaluation
   ```
-  $ javac util/DistributedPredictor.java
+  $ python util/evaluate.py data/eurlex/GS.txt linesearch/output/eu2.out
   ```
-  ```
-  $ java -cp util DistributedPredictor linesearch/output linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
-  ```
-Calculate Precision and NDCG:
-  ```
-  $ javac util/MultiLabelMetrics.java
-  ```
-  ```
-  $ java -cp util MultiLabelMetrics.java data/eurlex/GS.txt linesearch/final-output/top1.out linesearch/final-output/top3.out linesearch/final-output/top5.out
-  ```
-
-Delete `top1.out` .. before evalute another model. 
 
 
