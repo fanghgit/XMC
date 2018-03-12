@@ -172,7 +172,7 @@ void read_test(const char *filename)
 			}
 
 			errno = 0;
-			x_space[j].index = (long long) strtol(idx,&endptr,10);
+			x_space[j].index = (int) strtol(idx,&endptr,10);
 			if(endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
 			{	printf("idx error\n");
 				printf("idx: %s \n", idx);
@@ -193,7 +193,7 @@ void read_test(const char *filename)
 		}
 
 		char *mlabel;
-		long long cc=0;
+		int cc=0;
 		mlabel = strtok(label,",");
 		while (mlabel != NULL)
 		  {
@@ -294,7 +294,7 @@ int main(int argc, char **argv)
   read_test(argv[i]);   // input test file
   printf("load test file complete\n");
 
-  int k = 1;
+  int k = 5;
   int ** pred_label = predict(test_prob.x, model_, W, test_prob.l, k);
   //int ** pred_label = NULL;
   evaluate(pred_label, &test_prob, k);

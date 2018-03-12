@@ -1893,8 +1893,8 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
     for(int j=0; j<k; j++)
     {
       res[i][j] =  model_->label[ topk_index[j] ] ;
-      printf("topk_index[j]: %d\n", topk_index[j]);
-      printf("res[i][j]: %d\n", res[i][j]);
+      //printf("topk_index[j]: %d\n", topk_index[j]);
+      //printf("res[i][j]: %d\n", res[i][j]);
     }
   }
 
