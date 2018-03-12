@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "linear.h"
 
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
@@ -235,6 +236,21 @@ void read_test(const char *filename)
 
 }
 
+
+// write prediction
+void write_pred(FILE *output, int ** pred, int k, int nr_test)
+{
+  for(int i=0; i<nr_test; i++)
+  {
+    for(int j=0; j<k; j++)
+    {
+      fprintf(output, "%d ", pred[i][j]);
+    }
+    fprintf(output, "\n");
+  }
+}
+
+
 // main
 
 int main(int argc, char **argv)
@@ -285,17 +301,28 @@ int main(int argc, char **argv)
 	// 	fprintf(stderr,"can't open model file %s\n",argv[i+1]);
 	// 	exit(1);
 	// }
+  clock_t start_time = clock();
   struct feature_node **W = NULL;
   model_ = load_model_stat(argv[i+1]);
   W = load_w(argv[i+1]);
-  printf("load model complete\n");
+  clock_t t = clock();
+  printf("load model complete, time spent: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
 	//x = (struct feature_node *) malloc(max_nr_attr*sizeof(struct feature_node));
 	//do_predict(input, output);
+  start_time = clock();
   read_test(argv[i]);   // input test file
-  printf("load test file complete\n");
+  t = clock();
+  printf("load test file complete, time spent: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
 
   int k = 5;
+  start = clock();
   int ** pred_label = predict(test_prob.x, model_, W, test_prob.l, k);
+  t = clock();
+  printf("time spent on prediction: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
+
+  // write prediction
+  write_pred(output, pred_label, k, test_prob.l);
+
   //int ** pred_label = NULL;
   evaluate(pred_label, &test_prob, k);
 
