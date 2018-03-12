@@ -224,7 +224,7 @@ void read_test(const char *filename)
 	else
 		test_prob.n=max_index;
 
-  if test_prob.n != get_nr_feature(model_)
+  if(test_prob.n != get_nr_feature(model_))
   {
     fprintf(stderr,"test nr_feature doesn't match with train. \n");
     exit(1);
