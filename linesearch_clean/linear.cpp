@@ -1860,18 +1860,18 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
     struct feature_node *x_i = x[i];
     while(x_i->index != -1)
     {
-      printf("x[i]->index: %d\n", x_i->index);
+      //printf("x[i]->index: %d\n", x_i->index);
       struct feature_node *wp = W[ x_i->index - 1 ];
       while(wp->index != -1)
       {
-        printf("wp->index: %d\n", wp->index);
+        //printf("wp->index: %d\n", wp->index);
         score[ wp->index - 1 ] += wp->value * x_i->value;
         wp++;
       }
       x_i++;
     }
-    for(int j = 0; j <nr_class; j++)
-      printf("score[%d]: %lf\n", j, score[j]);
+    //for(int j = 0; j <nr_class; j++)
+    //  printf("score[%d]: %lf\n", j, score[j]);
     // find top k score
     std::priority_queue< std::pair<double, int>, std::vector< std::pair<double, int> >, std::greater <std::pair<double, int> > > q;
     for(int j=0; j<nr_class; j++)
