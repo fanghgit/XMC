@@ -1602,7 +1602,7 @@ struct model *load_model_stat(const char *model_file_name)
 
 	//int i;
 	int nr_feature;
-	//int n;
+	int n;
 	int nr_class;
 	double bias;
 	model *model_ = Malloc(model,1);
@@ -1770,7 +1770,7 @@ struct feature_node **load_w(const char *model_file_name)
 		n=nr_feature;
 
 	//int w_size = n;
-	//int nr_w;
+	int nr_w;
 	//if(nr_class==2 && param.solver_type != MCSVM_CS)
 	//	nr_w = 1;
 	//else
