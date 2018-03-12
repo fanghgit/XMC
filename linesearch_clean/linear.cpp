@@ -1481,7 +1481,7 @@ void save_w(FILE *fp, int nr_class, int n, const struct model *model_)
     {
       fprintf(fp, "%d", w[i][j].first);
       fprintf(fp, ":");
-      fprintf(fp, "%lf ", w[i][j].second);
+      fprintf(fp, "%.4lf ", w[i][j].second);
     }
     fprintf(fp, "\n");
   }
