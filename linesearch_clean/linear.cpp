@@ -1535,7 +1535,6 @@ int save_model(const char *model_file_name, const struct model *model_)
 
 	fprintf(fp, "w\n");
 	//sparse output
-  printf("save w\n");
   save_w(fp, nr_w, n, model_);
 	// for(i=0; i<nr_class; i++)
 	// {
