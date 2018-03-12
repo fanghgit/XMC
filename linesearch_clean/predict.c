@@ -315,7 +315,7 @@ int main(int argc, char **argv)
   printf("load test file complete, time spent: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
 
   int k = 5;
-  start = clock();
+  start_time = clock();
   int ** pred_label = predict(test_prob.x, model_, W, test_prob.l, k);
   t = clock();
   printf("time spent on prediction: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
