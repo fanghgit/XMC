@@ -82,7 +82,7 @@ void read_test(const char *filename)
 	line = Malloc(char,max_line_len);
   test_prob.n = get_nr_feature(model_);
   test_prob.bias = model_->bias;
-  int nr_class = get_nr_class(model_);
+  //int nr_class = get_nr_class(model_);
 
 	long long totalCount = 0;
 
@@ -223,6 +223,12 @@ void read_test(const char *filename)
 	}
 	else
 		test_prob.n=max_index;
+
+  if test_prob.n != get_nr_feature(model_)
+  {
+    fprintf(stderr,"test nr_feature doesn't match with train. \n");
+    exit(1);
+  }
 
 	fclose(fp);
 	printf("test read complete!\n");
