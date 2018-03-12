@@ -1107,6 +1107,13 @@ static void transpose(const subproblem *prob, feature_node **x_space_ret, subpro
 	delete [] col_ptr;
 }
 
+// solve MST problem
+// int * order_schedule(const problem *prob, const parameter *param)
+// {
+//
+// }
+
+
 static void train_one(const subproblem *prob, const parameter *param, double *w, double Cp, double Cn)
 {
 	clock_t start_time = clock();
@@ -1593,9 +1600,9 @@ struct model *load_model_stat(const char *model_file_name)
   FILE *fp = fopen(model_file_name,"r");
 	if(fp==NULL) return NULL;
 
-	int i;
+	//int i;
 	int nr_feature;
-	int n;
+	//int n;
 	int nr_class;
 	double bias;
 	model *model_ = Malloc(model,1);
@@ -1761,8 +1768,9 @@ struct feature_node **load_w(const char *model_file_name)
 		n=nr_feature+1;
 	else
 		n=nr_feature;
-	int w_size = n;
-	int nr_w;
+
+	//int w_size = n;
+	//int nr_w;
 	//if(nr_class==2 && param.solver_type != MCSVM_CS)
 	//	nr_w = 1;
 	//else
