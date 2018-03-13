@@ -52,21 +52,6 @@ Prediction: create new folder `mkdir linesearch/output`
   $ linesearch/predict data/eurlex/test_remap_tfidf.txt linesearch/models/eu2.model linesearch/output/eu2.out
   ```
 
-<!--create new folders: `mkdir linesearch/output`
-
-Process test data, split labels from test data
-  ```
-  $ python util/splitlabel.py data/eurlex/test_remap_tfidf.txt data/eurlex/GS.txt data/eurlex/test_remap_tfidf_zeroed.txt
-  ```
-Produce output:
-  ```
-  $ linesearch/predict data/eurlex/test_remap_tfidf_zeroed.txt linesearch/models/eu2.model linesearch/output/eu2.out
-  ```
-Performance evaluation
-  ```
-  $ python util/evaluate.py data/eurlex/GS.txt linesearch/output/eu2.out
-  ```
---!>
 Training with DISMEC:
   ```
   ./dismec/dismec/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
