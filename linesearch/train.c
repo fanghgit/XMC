@@ -19,17 +19,17 @@ void exit_with_help()
 	"-s type : set type of solver (default 1)\n"
 	"  for multi-class classification\n"
 	"	 0 -- L2-regularized logistic regression (primal)\n"
-	"	 1 -- L2-regularized L2-loss support vector classification (dual)\n"
-	"	 2 -- L2-regularized L2-loss support vector classification (primal)\n"
-	"	 3 -- L2-regularized L1-loss support vector classification (dual)\n"
-	"	 4 -- support vector classification by Crammer and Singer\n"
-	"	 5 -- L1-regularized L2-loss support vector classification\n"
-	"	 6 -- L1-regularized logistic regression\n"
-	"	 7 -- L2-regularized logistic regression (dual)\n"
-	"  for regression\n"
-	"	11 -- L2-regularized L2-loss support vector regression (primal)\n"
-	"	12 -- L2-regularized L2-loss support vector regression (dual)\n"
-	"	13 -- L2-regularized L1-loss support vector regression (dual)\n"
+	//"	 1 -- L2-regularized L2-loss support vector classification (dual)\n"
+	"	 1 -- L2-regularized L2-loss support vector classification (primal)\n"
+	//"	 3 -- L2-regularized L1-loss support vector classification (dual)\n"
+	//"	 4 -- support vector classification by Crammer and Singer\n"
+	"	 2 -- L1-regularized L2-loss support vector classification\n"
+	"	 3 -- L1-regularized logistic regression\n"
+	//"	 7 -- L2-regularized logistic regression (dual)\n"
+	//"  for regression\n"
+	//"	11 -- L2-regularized L2-loss support vector regression (primal)\n"
+	//"	12 -- L2-regularized L2-loss support vector regression (dual)\n"
+	//"	13 -- L2-regularized L1-loss support vector regression (dual)\n"
 	"-c cost : set the parameter C (default 1)\n"
 	"-p epsilon : set the epsilon in loss function of SVR (default 0.1)\n"
 	"-e epsilon : set tolerance of termination criterion\n"
@@ -156,67 +156,13 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-// void do_find_parameter_C()
-// {
-// 	double start_C, best_C, best_rate;
-// 	double max_C = 1024;
-// 	if (flag_C_specified)
-// 		start_C = param.C;
-// 	else
-// 		start_C = -1.0;
-// 	printf("Doing parameter search with %d-fold cross validation.\n", nr_fold);
-// 	find_parameter_C(&prob, &param, nr_fold, start_C, max_C, &best_C, &best_rate);
-// 	printf("Best C = %g  CV accuracy = %g%%\n", best_C, 100.0*best_rate);
-// }
-
-// void do_cross_validation()
-// {
-// 	int i;
-// 	int total_correct = 0;
-// 	double total_error = 0;
-// 	double sumv = 0, sumy = 0, sumvv = 0, sumyy = 0, sumvy = 0;
-// 	double *target = Malloc(double, prob.l);
-//
-// 	cross_validation(&prob,&param,nr_fold,target);
-// 	if(param.solver_type == L2R_L2LOSS_SVR ||
-// 	   param.solver_type == L2R_L1LOSS_SVR_DUAL ||
-// 	   param.solver_type == L2R_L2LOSS_SVR_DUAL)
-// 	{
-// 		for(i=0;i<prob.l;i++)
-// 		{
-// 			double y = *(prob.y[i]);
-// 			double v = target[i];
-// 			total_error += (v-y)*(v-y);
-// 			sumv += v;
-// 			sumy += y;
-// 			sumvv += v*v;
-// 			sumyy += y*y;
-// 			sumvy += v*y;
-// 		}
-// 		printf("Cross Validation Mean squared error = %g\n",total_error/prob.l);
-// 		printf("Cross Validation Squared correlation coefficient = %g\n",
-// 				((prob.l*sumvy-sumv*sumy)*(prob.l*sumvy-sumv*sumy))/
-// 				((prob.l*sumvv-sumv*sumv)*(prob.l*sumyy-sumy*sumy))
-// 			  );
-// 	}
-// 	else
-// 	{
-// 		for(i=0;i<prob.l;i++)
-// 			if(target[i] == *(prob.y[i]))
-// 				++total_correct;
-// 		printf("Cross Validation Accuracy = %g%%\n",100.0*total_correct/prob.l);
-// 	}
-//
-// 	free(target);
-// }
-
 void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name)
 {
 	int i;
 	void (*print_func)(const char*) = NULL;	// default printing to stdout
 
 	// default values
-	param.solver_type = L2R_L2LOSS_SVC_DUAL;
+	param.solver_type = L2R_L2LOSS_SVC;
 	param.C = 1;
 	param.eps = INF; // see setting below
 	param.p = 0.1;
@@ -225,6 +171,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 	param.weight = NULL;
 	param.init_sol = NULL;
 	param.all_neg_init = 0; // fangh
+  param.n_process = 1; // fangh
 	flag_cross_validation = 0;
 	flag_C_specified = 0;
 	flag_solver_specified = 0;
@@ -342,25 +289,16 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 		switch(param.solver_type)
 		{
 			case L2R_LR:
+        param.eps = 0.001;
+        break;
 			case L2R_L2LOSS_SVC:
-				param.eps = 0.01;
-				break;
-			case L2R_L2LOSS_SVR:
 				param.eps = 0.001;
 				break;
-			case L2R_L2LOSS_SVC_DUAL:
-			case L2R_L1LOSS_SVC_DUAL:
-			case MCSVM_CS:
-			case L2R_LR_DUAL:
-				param.eps = 0.1;
-				break;
 			case L1R_L2LOSS_SVC:
-			case L1R_LR:
-				param.eps = 0.01;
-				break;
-			case L2R_L1LOSS_SVR_DUAL:
-			case L2R_L2LOSS_SVR_DUAL:
-				param.eps = 0.1;
+        param.eps = 0.001;
+        break;
+      case L1R_LR:
+				param.eps = 0.001;
 				break;
 		}
 	}
@@ -387,22 +325,6 @@ void read_problem(const char *filename)
 	line = Malloc(char,max_line_len);
 
 	long long totalCount = 0;
-
-	// while(readline(fp)!=NULL)
-	// {
-	// 	char *p = strtok(line," \t"); // label
-	//
-	// 	// features
-	// 	while(1)
-	// 	{
-	// 		p = strtok(NULL," \t");
-	// 		if(p == NULL || *p == '\n') // check '\n' as ' ' may be after the last feature
-	// 			break;
-	// 		elements++;
-	// 	}
-	// 	elements++; // for bias term
-	// 	prob.l++;
-	// }
 
 	while(readline(fp)!=NULL)
 	{
@@ -527,54 +449,6 @@ void read_problem(const char *filename)
 
 		x_space[j++].index = -1;
 	}
-
-
-	// max_index = 0;
-	// j=0;
-	// for(i=0;i<prob.l;i++)
-	// {
-	// 	inst_max_index = 0; // strtol gives 0 if wrong format
-	// 	readline(fp);
-	// 	prob.x[i] = &x_space[j];
-	// 	label = strtok(line," \t\n");
-	// 	if(label == NULL) // empty line
-	// 		exit_input_error(i+1);
-	//
-	// 	prob.y[i] = strtod(label,&endptr);
-	// 	if(endptr == label || *endptr != '\0')
-	// 		exit_input_error(i+1);
-	//
-	// 	while(1)
-	// 	{
-	// 		idx = strtok(NULL,":");
-	// 		val = strtok(NULL," \t");
-	//
-	// 		if(val == NULL)
-	// 			break;
-	//
-	// 		errno = 0;
-	// 		x_space[j].index = (int) strtol(idx,&endptr,10);
-	// 		if(endptr == idx || errno != 0 || *endptr != '\0' || x_space[j].index <= inst_max_index)
-	// 			exit_input_error(i+1);
-	// 		else
-	// 			inst_max_index = x_space[j].index;
-	//
-	// 		errno = 0;
-	// 		x_space[j].value = strtod(val,&endptr);
-	// 		if(endptr == val || errno != 0 || (*endptr != '\0' && !isspace(*endptr)))
-	// 			exit_input_error(i+1);
-	//
-	// 		++j;
-	// 	}
-	//
-	// 	if(inst_max_index > max_index)
-	// 		max_index = inst_max_index;
-	//
-	// 	if(prob.bias >= 0)
-	// 		x_space[j++].value = prob.bias;
-	//
-	// 	x_space[j++].index = -1;
-	// }
 
 	if(prob.bias >= 0)
 	{

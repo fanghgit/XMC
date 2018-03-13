@@ -29,7 +29,7 @@ struct subproblem
 	double bias;            /* < 0 if no bias term */
 };
 
-enum { L2R_LR, L2R_L2LOSS_SVC, L1R_L2LOSS_SVC, L1R_LR }; /* solver_type */
+enum { L2R_LR, L2R_L2LOSS_SVC_DUAL, L2R_L2LOSS_SVC, L2R_L1LOSS_SVC_DUAL, MCSVM_CS, L1R_L2LOSS_SVC, L1R_LR, L2R_LR_DUAL, L2R_L2LOSS_SVR = 11, L2R_L2LOSS_SVR_DUAL, L2R_L1LOSS_SVR_DUAL }; /* solver_type */
 
 struct parameter
 {
@@ -43,8 +43,9 @@ struct parameter
 	double* weight;
 	double p;
 	double *init_sol;
-  int n_process; // for parallel
-	int all_neg_init; //
+
+	int all_neg_init;
+
 
 };
 
@@ -53,33 +54,22 @@ struct model
 	struct parameter param;
 	int nr_class;		/* number of classes */
 	int nr_feature;
-	//double *w;
-	struct feature_node **w;
+	double *w;
 	int *label;		/* label of each class */
 	double bias;
 };
 
 struct model* train(const struct problem *prob,const struct parameter *param);
-// void cross_validation(const struct problem *prob, const struct parameter *param, int nr_fold, double *target);
-// void find_parameter_C(const struct problem *prob, const struct parameter *param, int nr_fold, double start_C, double max_C, double *best_C, double *best_rate);
+void cross_validation(const struct problem *prob, const struct parameter *param, int nr_fold, double *target);
+//void find_parameter_C(const struct problem *prob, const struct parameter *param, int nr_fold, double start_C, double max_C, double *best_C, double *best_rate);
 
-//double predict_values(const struct model *model_, const struct feature_node *x, double* dec_values);
-//double predict(const struct model *model_, const struct feature_node *x);
-//char** predict_all(const struct model *model_, const struct feature_node *x, long long k);
-//double predict_probability(const struct model *model_, const struct feature_node *x, double* prob_estimates);
+double predict_values(const struct model *model_, const struct feature_node *x, double* dec_values);
+double predict(const struct model *model_, const struct feature_node *x);
+char** predict_all(const struct model *model_, const struct feature_node *x, long long k);
+double predict_probability(const struct model *model_, const struct feature_node *x, double* prob_estimates);
 
-
-//struct model *load_model(const char *model_file_name, struct feature_node **W);
 int save_model(const char *model_file_name, const struct model *model_);
-//struct model *load_model(const char *model_file_name, struct feature_node **W);
-struct model *load_model_stat(const char *model_file_name);
-struct feature_node **load_w(const char *model_file_name);
-int ** predict(struct feature_node **x, const model *model_, struct feature_node **W, int nr_test, int k);
-void evaluate(int ** pred, struct problem * test_prob, int k);
-
-
-//int save_model(const char *model_file_name, const struct model *model_);
-//struct model *load_model(const char *model_file_name, struct feature_node **W);
+struct model *load_model(const char *model_file_name);
 
 int get_nr_feature(const struct model *model_);
 int get_nr_class(const struct model *model_);
@@ -92,8 +82,8 @@ void free_and_destroy_model(struct model **model_ptr_ptr);
 void destroy_param(struct parameter *param);
 
 const char *check_parameter(const struct problem *prob, const struct parameter *param);
-//int check_probability_model(const struct model *model);
-//int check_regression_model(const struct model *model);
+int check_probability_model(const struct model *model);
+int check_regression_model(const struct model *model);
 void set_print_string_function(void (*print_func) (const char*));
 
 #ifdef __cplusplus
