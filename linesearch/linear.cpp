@@ -58,11 +58,11 @@ static void info(const char *fmt,...) {}
 class Graph{
 private:
 	int V, E;
-	std::vector<std::pair<double, std::pair<int, int> > > edges;
-	std::vector<std::pair<double, std::pair<int, int> > > MST;
+	std::vector<std::pair<int, std::pair<int, int> > > edges;
+	std::vector<std::pair<int, std::pair<int, int> > > MST;
 public:
 	Graph(int V, int E);
-	void addEdge(int u, int v, double w);
+	void addEdge(int u, int v, int w);
 	double kruskalMST();
 	void printMST();
 };
@@ -73,13 +73,13 @@ Graph::Graph(int V, int E)
 	this->E = E;
 }
 
-void Graph::addEdge(int u, int v, double w)
+void Graph::addEdge(int u, int v, int w)
 {
 	edges.push_back( std::make_pair(w, std::make_pair(u,v) ) );
 }
 
 void Graph::printMST(){
-    std::vector<std::pair<double,std::pair<int,int> > >::iterator it;
+    std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
 		//auto it;
 		for(it = MST.begin();it!=MST.end();it++){
         //cout << it->second.first << " - " << it->second.second << endl;
@@ -121,15 +121,15 @@ struct DisjointSet{
         }
     }
 };
-double Graph::kruskalMST(){
-    double MSTWeight = 0; //sum of all vertex weights
+int Graph::kruskalMST(){
+    int MSTWeight = 0; //sum of all vertex weights
     std::sort(edges.begin(),edges.end());
 		printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
 
-    std::vector<std::pair<double,std::pair<int,int> > >::iterator it;
+    std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
 		//auto it;
 		// for all edges in G
     for(it = edges.begin(); it!=edges.end();it++){
@@ -1226,7 +1226,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 
 	// brute force
 	//std::unordered_map< pair<int, int>, int > hashmap;
-	std::vector<std::unordered_map<int, double> > dist_mat (nr_class);
+	std::vector<std::unordered_map<int, int> > dist_mat (nr_class);
 	for(int i=0; i<l; i++)
 	{
 		for(int j=0; j<prob->numLabels[i]; j++)
@@ -1235,7 +1235,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 			{
 				int lbl1 = prob->y[i][j];
 				int lbl2 = prob->y[i][k];
-				std::unordered_map<int,double>::iterator got = dist_mat[lbl1-1].find (lbl2);
+				std::unordered_map<int,int>::iterator got = dist_mat[lbl1-1].find (lbl2);
 				if(got == dist_mat[lbl1-1].end() )
 					dist_mat[lbl1-1][lbl2] = 1;
 				else
@@ -1268,7 +1268,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	double Ecount = 0;
 	for(int i=0; i<nr_class; i++)
 	{
-		std::unordered_map<int,double>::iterator it;
+		std::unordered_map<int,int>::iterator it;
 		for(it=dist_mat[i].begin(); it != dist_mat[i].end(); it++)
 		{
 			int lbl1 = i+1;
@@ -1303,7 +1303,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	int u,v,w;
 	for(int i=0; i<nr_class; i++)
 	{
-		std::unordered_map<int,double>::iterator it;
+		std::unordered_map<int,int>::iterator it;
 		for(it=dist_mat[i].begin(); it != dist_mat[i].end(); it++)
 		{
 			if( (i+1) > it->first )
@@ -1314,7 +1314,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	}
 
 	double weight = g.kruskalMST();
-	printf("weight of MST is: %ld\n", weight);
+	printf("weight of MST is: %d\n", weight);
 
 
 	// std::sort(dist_vec.begin(), dist_vec.end(), sortByweigth);
