@@ -121,7 +121,7 @@ struct DisjointSet{
 };
 int Graph::kruskalMST(){
     double MSTWeight = 0; //sum of all vertex weights
-    sort(edges.begin(),edges.end());
+    std::sort(edges.begin(),edges.end());
     //for all u in G_v
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
