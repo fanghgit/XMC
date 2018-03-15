@@ -1312,7 +1312,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	}
 
 	double weight = g.kruskalMST();
-	printf("weight of MST is: ", weight);
+	printf("weight of MST is: %ld\n", weight);
 
 
 	// std::sort(dist_vec.begin(), dist_vec.end(), sortByweigth);
