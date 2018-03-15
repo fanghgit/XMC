@@ -63,7 +63,7 @@ public:
 	void addEdge(int u, int v, double w);
 	int kruskalMST();
 	void printMST();
-}
+};
 
 Graph::Graph(int V, int E)
 {
@@ -73,13 +73,14 @@ Graph::Graph(int V, int E)
 
 void Graph::addEdge(int u, int v, double w)
 {
-	edges.push_back({w,{u,v}});
+	edges.push_back( std::make_pair(w, std::make_pair(u,v) ) );
 }
 
 void Graph::printMST(){
-    vector<pair<double,pair<int,int> > >::iterator it;
+    std::vector<std::pair<double,std::pair<int,int> > >::iterator it;
     for(it = MST.begin();it!=MST.end();it++){
-        cout << it->second.first << " - " << it->second.second << endl;
+        //cout << it->second.first << " - " << it->second.second << endl;
+				printf("%d - %d", it->second.first,it->second.second);
     }
 }
 
@@ -124,7 +125,7 @@ int Graph::kruskalMST(){
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
 
-    vector<pair<int,pair<int,int> > >::iterator it;
+    std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
     // for all edges in G
     for(it = edges.begin(); it!=edges.end();it++){
         int u = it->second.first;
@@ -136,7 +137,7 @@ int Graph::kruskalMST(){
 
         if(setU != setV){
             double w = it->first;
-            MST.push_back({w,{u,v}});
+            MST.push_back( std::make_pair(w, std::make_pair(u,v) ) );
             MSTWeight += it->first;
 
             ds.Union(setU,setV);
@@ -1220,7 +1221,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 
 	// brute force
 	//std::unordered_map< pair<int, int>, int > hashmap;
-	std::vector<int, unordered_map<int, double> > dist_mat (nr_class);
+	std::vector<int, std::unordered_map<int, double> > dist_mat (nr_class);
 	for(int i=0; i<l; i++)
 	{
 		for(int j=0; j<prob->numLabels[i]; j++)
@@ -1250,11 +1251,11 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	for(int i=0; i<nr_class; i++)
 		num_pos_per_label[i] = 0;
 
-	for(int i=0; i<prob.l; i++)
+	for(int i=0; i<prob->l; i++)
 	{
-		for(int j=0; j<numLabels[i]; j++)
+		for(int j=0; j<prob->numLabels[i]; j++)
 		{
-			num_pos_per_label[ y[i][j]-1 ]++;
+			num_pos_per_label[ prob->y[i][j]-1 ]++;
 		}
 	}
 
@@ -1301,7 +1302,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 		{
 			if( (i+1) > it->first )
 			{
-				g.addEdge( i+1, it->first, it->second )
+				g.addEdge( i+1, it->first, it->second );
 			}
 		}
 	}
