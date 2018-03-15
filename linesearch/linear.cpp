@@ -78,7 +78,8 @@ void Graph::addEdge(int u, int v, double w)
 
 void Graph::printMST(){
     std::vector<std::pair<double,std::pair<int,int> > >::iterator it;
-    for(it = MST.begin();it!=MST.end();it++){
+		//auto it;
+		for(it = MST.begin();it!=MST.end();it++){
         //cout << it->second.first << " - " << it->second.second << endl;
 				printf("%d - %d", it->second.first,it->second.second);
     }
@@ -125,8 +126,9 @@ int Graph::kruskalMST(){
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
 
-    std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
-    // for all edges in G
+    std::vector<std::pair<double,std::pair<int,int> > >::iterator it;
+		//auto it;
+		// for all edges in G
     for(it = edges.begin(); it!=edges.end();it++){
         int u = it->second.first;
         int v = it->second.second;
@@ -1221,7 +1223,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 
 	// brute force
 	//std::unordered_map< pair<int, int>, int > hashmap;
-	std::vector<int, std::unordered_map<int, double> > dist_mat (nr_class);
+	std::vector<std::unordered_map<int, double> > dist_mat (nr_class);
 	for(int i=0; i<l; i++)
 	{
 		for(int j=0; j<prob->numLabels[i]; j++)
