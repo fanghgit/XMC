@@ -11,6 +11,8 @@
 #include "tron.h"
 #include <queue>
 #include <unordered_map>
+#include <algorithm>
+
 
 
 typedef signed char schar;
