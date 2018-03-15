@@ -1,6 +1,6 @@
-CXX ?= g++ -std=c++11
+CXX ?= g++
 CC ?= gcc
-CFLAGS = -w -Wall -Wconversion -O3 -fPIC -fopenmp
+CFLAGS = -std=c++11 -w -Wall -Wconversion -O3 -fPIC -fopenmp
 LIBS = blas/blas.a
 SHVER = 3
 OS = $(shell uname)
