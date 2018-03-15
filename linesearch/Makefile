@@ -1,4 +1,4 @@
-CXX ?= g++
+CXX ?= g++ -std=c++11
 CC ?= gcc
 CFLAGS = -w -Wall -Wconversion -O3 -fPIC -fopenmp
 LIBS = blas/blas.a
