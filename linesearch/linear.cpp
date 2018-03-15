@@ -63,7 +63,7 @@ private:
 public:
 	Graph(int V, int E);
 	void addEdge(int u, int v, double w);
-	int kruskalMST();
+	double kruskalMST();
 	void printMST();
 };
 
@@ -121,9 +121,10 @@ struct DisjointSet{
         }
     }
 };
-int Graph::kruskalMST(){
+double Graph::kruskalMST(){
     double MSTWeight = 0; //sum of all vertex weights
     std::sort(edges.begin(),edges.end());
+		printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
@@ -1297,6 +1298,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 	// 	}
 	// }
 	int V = nr_class + 1;
+	printf("before construct g, |E|: %d", E);
 	Graph g(V, E);
 	int u,v,w;
 	for(int i=0; i<nr_class; i++)
