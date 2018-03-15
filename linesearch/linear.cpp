@@ -10,6 +10,7 @@
 #include "linear.h"
 #include "tron.h"
 #include <queue>
+#include <unordered_map>
 
 
 typedef signed char schar;
@@ -50,6 +51,101 @@ static void info(const char *fmt,...)
 #else
 static void info(const char *fmt,...) {}
 #endif
+
+// define MST problem
+class Graph{
+private:
+	int V, E;
+	std::vector<std::pair<double, std::pair<int, int> > > edges;
+	std::vector<std::pair<double, std::pair<int, int> > > MST;
+public:
+	Graph(int V, int E);
+	void addEdge(int u, int v, double w);
+	int kruskalMST();
+	void printMST();
+}
+
+Graph::Graph(int V, int E)
+{
+	this->V = V;
+	this->E = E;
+}
+
+void Graph::addEdge(int u, int v, double w)
+{
+	edges.push_back({w,{u,v}});
+}
+
+void Graph::printMST(){
+    vector<pair<double,pair<int,int> > >::iterator it;
+    for(it = MST.begin();it!=MST.end();it++){
+        cout << it->second.first << " - " << it->second.second << endl;
+    }
+}
+
+struct DisjointSet{
+    int *parent,*rnk;
+    int n;
+
+    DisjointSet(int n){
+        this->n = n;
+        parent = new int[n+1];
+        rnk = new int[n+1];
+
+        for(int i=0;i<=n;i++){
+            rnk[i] = 0;
+            parent[i] = i;
+        }
+    }
+    int Find(int u){
+        if(u == parent[u]) return parent[u];
+        else return Find(parent[u]);
+    }
+
+    void Union(int x,int y){
+        x = Find(x);
+        y = Find(y);
+        if(x != y){
+            if(rnk[x] < rnk[y]){
+                rnk[y] += rnk[x];
+                parent[x] = y;
+            }
+            else{
+                rnk[x] += rnk[y];
+                parent[y] = x;
+            }
+        }
+    }
+};
+int Graph::kruskalMST(){
+    double MSTWeight = 0; //sum of all vertex weights
+    sort(edges.begin(),edges.end());
+    //for all u in G_v
+    //    MAKE-SET(u)
+    DisjointSet ds(this->V);
+
+    vector<pair<int,pair<int,int> > >::iterator it;
+    // for all edges in G
+    for(it = edges.begin(); it!=edges.end();it++){
+        int u = it->second.first;
+        int v = it->second.second;
+
+        int setU = ds.Find(u);
+        int setV = ds.Find(v);
+
+
+        if(setU != setV){
+            double w = it->first;
+            MST.push_back({w,{u,v}});
+            MSTWeight += it->first;
+
+            ds.Union(setU,setV);
+        }
+    }
+    return MSTWeight;
+}
+
+
 class sparse_operator
 {
 public:
@@ -1107,11 +1203,116 @@ static void transpose(const subproblem *prob, feature_node **x_space_ret, subpro
 	delete [] col_ptr;
 }
 
+
 // solve MST problem
-// int * order_schedule(const problem *prob, const parameter *param)
-// {
-//
-// }
+void order_schedule(const problem *prob, const parameter *param, int nr_class)
+{
+	int l = prob->l;
+	int num_all_labels = 0;
+	int nnz_upper_bound = 0;
+	for(int i=0; i<l; i++)
+	{
+		num_all_labels += prob->numLabels[i];
+		nnz_upper_bound += prob->numLabels[i] * prob->numLabels[i];
+	}
+	printf("naive upper bound: %d\n", num_all_labels);
+	printf("nnz upper bound: %d\n", nnz_upper_bound);
+
+	// brute force
+	//std::unordered_map< pair<int, int>, int > hashmap;
+	std::vector<int, unordered_map<int, double> > dist_mat (nr_class);
+	for(int i=0; i<l; i++)
+	{
+		for(int j=0; j<prob->numLabels[i]; j++)
+		{
+			for(int k=j+1; k<prob->numLabels[i]; k++)
+			{
+				int lbl1 = prob->y[i][j];
+				int lbl2 = prob->y[i][k];
+				std::unordered_map<int,double>::iterator got = dist_mat[lbl1-1].find (lbl2);
+				if(got == dist_mat[lbl1-1].end() )
+					dist_mat[lbl1-1][lbl2] = 1;
+				else
+					dist_mat[lbl1-1][lbl2] += 1;
+
+				got = dist_mat[lbl2-1].find (lbl1);
+				if(got == dist_mat[lbl2-1].end() )
+					dist_mat[lbl2-1][lbl1] = 1;
+				else
+					dist_mat[lbl2-1][lbl1] += 1;
+			}
+		}
+	}
+
+
+  // count n_pos per label;
+	std::vector<int> num_pos_per_label (nr_class);
+	for(int i=0; i<nr_class; i++)
+		num_pos_per_label[i] = 0;
+
+	for(int i=0; i<prob.l; i++)
+	{
+		for(int j=0; j<numLabels[i]; j++)
+		{
+			num_pos_per_label[ y[i][j]-1 ]++;
+		}
+	}
+
+	//construct distance matrix
+	double Ecount = 0;
+	for(int i=0; i<nr_class; i++)
+	{
+		std::unordered_map<int,double>::iterator it;
+		for(it=dist_mat[i].begin(); it != dist_mat[i].end(); it++)
+		{
+			int lbl1 = i+1;
+			int lbl2 = it->first;
+			it->second = num_pos_per_label[lbl1-1] + num_pos_per_label[lbl2-1] - 2*it->second;
+			Ecount += 0.5;
+		}
+		dist_mat[i][0] = num_pos_per_label[i];
+		Ecount += 1;
+	}
+	int E = (int) Ecount;
+
+	//construct ordered distance vector
+	// vector< graph_edge > dist_vec;
+	// for(int i=0; i<nr_class; i++)
+	// {
+	// 	std::unordered_map<int,double>::iterator it;
+	// 	for(it=dist_mat[i].begin(); it != dist_mat[i].end(); it++){
+	// 		if( (i+1) > it->first )
+	// 		{
+	// 			struct graph_edge tmp;
+	// 			tmp.node1 = i+1;
+	// 			tmp.node2 = it->first;
+	// 			tmp.weight = it->second;
+	// 			dist_vec.push_back( tmp );
+	// 		}
+	// 	}
+	// }
+	int V = nr_class + 1;
+	Graph g(V, E);
+	int u,v,w;
+	for(int i=0; i<nr_class; i++)
+	{
+		std::unordered_map<int,double>::iterator it;
+		for(it=dist_mat[i].begin(); it != dist_mat[i].end(); it++)
+		{
+			if( (i+1) > it->first )
+			{
+				g.addEdge( i+1, it->first, it->second )
+			}
+		}
+	}
+
+	double weight = g.kruskalMST();
+	printf("weight of MST is: ", weight);
+
+
+	// std::sort(dist_vec.begin(), dist_vec.end(), sortByweigth);
+
+}
 
 
 static void train_one(const subproblem *prob, const parameter *param, double *w, double Cp, double Cn)
@@ -1365,6 +1566,8 @@ model* train(const problem *prob, const parameter *param)
 		printf("using all negative initialization!\n");
 	}
 
+	printf("order scheduling:\n");
+	order_schedule(prob, param, nr_class);
 
 	//long long totalnz = 0;
 

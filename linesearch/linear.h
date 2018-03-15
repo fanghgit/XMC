@@ -5,6 +5,13 @@
 extern "C" {
 #endif
 
+// struct graph_edge
+// {
+// 	int node1;
+// 	int node2;
+// 	double weight;
+// }
+
 struct feature_node
 {
 	int index;
