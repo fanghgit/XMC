@@ -25,42 +25,50 @@ Create folder to hold models: `mkdir linesearch/models`
 
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch/train -e 0.0001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
+  $ ./linesearch/train -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
   ```
-Training with proposed initialization for EURLex:
+Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch/train -m 1 -e 0.0001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch/train -m 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
-Should be able to finish in around 200 sec.
+Training with MST initialization for EURLex:
+  ```
+  $ ./linesearch/train -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  ```
+
+By using `-m 1` or `-x 1`, training should be able to finish in around 200 sec.
 
 Note the we changed the stopping criterion for L2L2 solver, in
-liblinear, we stop when 
+liblinear, we stop when
 
-  |f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2,
-  where f initializations the primal function and pos/neg are # of
-  positive/negative data (Descriptionfault 0.01)
+`|f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2`
 
-Here we stop when 
+where `f` initializations the primal function and `w0 = zeros(n,1)` and pos/neg are # of
+positive/negative data (Descriptionfault 0.01)
 
-  |f'(w)|_2 <= eps|f'(w0)|_2, we can set eps = 0.001 or 0.0001 for experiments
+Here we stop when
+
+`|f'(w)|_2 <= eps|f'(w0)|_2`, and `w0 = zeros(n,1)`
+
+we can set eps = 0.001 or 0.0001 for experiments
 
 DISMEC's code is changed to use the same stopping criterion.
 
 Prediction: create new folder `mkdir linesearch/output`
 
   ```
-  $ linesearch/predict data/eurlex/test_remap_tfidf.txt linesearch/models/eu2.model linesearch/output/eu2.out
+  $ ./linesearch/predict data/eurlex/test_remap_tfidf.txt linesearch/models/eu2.model linesearch/output/eu2.out
   ```
 
 Training with DISMEC:
   ```
-  ./dismec/dismec/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
+  $ ./dismec/dismec/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
   ```
   ```
-  dismec/dismec/predict data/eurlex/test_remap_tfidf_zeroed.txt dismec/dismec/models/eu_dismec.model dismec/dismec/output/eu_dismec.out
+  $ ./dismec/dismec/predict data/eurlex/test_remap_tfidf_zeroed.txt dismec/dismec/models/eu_dismec.model dismec/dismec/output/eu_dismec.out
   ```
   ```
-  python util/evaluate.py data/eurlex/GS.txt dismec/dismec/output/eu_dismec.out
+  $ ./python util/evaluate.py data/eurlex/GS.txt dismec/dismec/output/eu_dismec.out
   ```
 ## References:
 
@@ -69,5 +77,3 @@ Training with DISMEC:
 [2] R.-E. Fan, K.-W. Chang, C.-J. Hsieh, X.-R. Wang, and C.-J. Lin. LIBLINEAR: A library for large linear classification, 2008
 
 [3] C.-Y. Hsia, Y. Zhu, and C.-J. Lin. A study on trust region update rules in Newton methods for large-scale linear classification, 2017
-
-

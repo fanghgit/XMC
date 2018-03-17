@@ -125,3 +125,9 @@ References
 line-search, zeros initialization:   575.089966 sec
 line-search, all neg initialization: 248.850006 sec
 trust region, zeros initialization:  655.139954 sec
+
+
+
+-e 0.0001
+line-search, MST initialization: 181.520004 sec,  eu2.model
+line-search, all neg initialization: 187.679993 sec, eu3.model
