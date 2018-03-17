@@ -1360,14 +1360,15 @@ void bfs(label_node* nodes, int start_node, int nr_class, std::vector<std::pair<
 	std::list<int> q;
 	q.push_back(start_node);
 
-	whlie(!q.empty())
+	while(!q.empty())
 	{
-		s = q.front();
+		int s = q.front();
 		q.pop_front();
 		for(int i=0; i<nodes[s].neighbours.size();i++)
 		{
 			if(!visited[nodes[s].neighbours[i] ] )
 			{
+				nodes[i].isparent = true;
 				res.push_back( std::make_pair(s, nodes[s].neighbours[i] ) );
 				visited[nodes[s].neighbours[i] ] = true;
 				q.push_back( nodes[s].neighbours[i] );
@@ -1622,7 +1623,7 @@ model* train(const problem *prob, const parameter *param)
 	std::vector<std::pair<int, int> > order (0);
 	if(param->mst_schedule == 1)
 	{
-		bfs(nodes, start_node, order);
+		bfs(nodes, start_node, nr_class, order);
 		printf("using MST scheduling!\n");
 		for(int j=0; j<order.size(); j++)
 		{
