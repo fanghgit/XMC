@@ -1464,6 +1464,17 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	}
 }
 
+bool comp(const std::pair &lhs, const std::pair &rhs)
+{
+	if(lhs.first < rhs.first)
+		return true;
+	else if(lhs.first == rhs.first && lhs.second < rhg.second)
+		return true;
+	else
+		return false;
+}
+
+
 //
 // Interface functions
 //
@@ -1624,6 +1635,8 @@ model* train(const problem *prob, const parameter *param)
 	if(param->mst_schedule == 1)
 	{
 		bfs(nodes, start_node, nr_class, order);
+		std::sort(order.begin(), order.end(), comp);
+		
 		printf("using MST scheduling!\n");
 		for(int j=0; j<order.size(); j++)
 		{
