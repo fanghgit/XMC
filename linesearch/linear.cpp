@@ -10,6 +10,7 @@
 #include "linear.h"
 #include "tron.h"
 #include <queue>
+#include <list>
 #include <unordered_map>
 #include <algorithm>
 
@@ -57,6 +58,7 @@ static void info(const char *fmt,...) {}
 // define MST problem
 class label_node
 {
+public:
 	int id;
 	double *w;
 	bool visited;
@@ -74,8 +76,8 @@ class Graph{
 private:
 	int V, E;
 	std::vector<std::pair<int, std::pair<int, int> > > edges;
-	std::vector<std::pair<int, std::pair<int, int> > > MST;
 public:
+	std::vector<std::pair<int, std::pair<int, int> > > MST;
 	Graph(int V, int E);
 	void addEdge(int u, int v, int w);
 	int kruskalMST();
@@ -1348,36 +1350,31 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 
 }
 
-void bfs(label_nodes* nodes, int start_node, std::vector<std::pair<int, int> > &res)
+void bfs(label_node* nodes, int start_node, int nr_class, std::vector<std::pair<int, int> > &res)
 {
-	if( nodes[start_node].visited )
-		return;
-	nodes[start_node].visited = true;
-	for(int i=0; i<nodes[start_node].neighbours.size(); i++)
+	bool visited[nr_class+1];
+	for(int i=0; i<(nr_class+1); i++)
+		visited[i] = false;
+
+	visited[start_node] = true;
+	std::list<int> q;
+	q.push_back(start_node);
+
+	whlie(!q.empty())
 	{
-		if( !nodes[ nodes[start_node].neighbours[i] ].visited )
+		s = q.front();
+		q.pop_front();
+		for(int i=0; i<nodes[s].neighbours.size();i++)
 		{
-			res.push_back( std::make_pair(start_node, i) );
-			nodes[start_node].isparent = true;
-		}
-		else
-		{
-			continue;
+			if(!visited[nodes[s].neighbours[i] ] )
+			{
+				res.push_back( std::make_pair(s, nodes[s].neighbours[i] ) );
+				visited[nodes[s].neighbours[i] ] = true;
+				q.push_back( nodes[s].neighbours[i] );
+			}
 		}
 	}
 
-	for(int i=0; i<nodes[start_node].neighbours.size(); i++)
-	{
-		if( !nodes[ nodes[start_node].neighbours[i] ].visited )
-		{
-			bfs(nodes, nodes[start_node] .neighbours[i], res );
-		}
-		else
-		{
-			continue;
-		}
-	}
-	return;
 }
 
 
@@ -1615,14 +1612,14 @@ model* train(const problem *prob, const parameter *param)
 		nodes[i].id = i;
 		nodes[i].visited = false;
 		nodes[i].isparent = false;
-		nodes.neighbours.resize(0);
+		nodes[i].neighbours.resize(0);
 	}
 
 	order_schedule(prob, param, nr_class, nodes);
 
 	int start_node = 0;
 
-	std::vector<std:pair<int, int> > order (0);
+	std::vector<std::pair<int, int> > order (0);
 	if(param->mst_schedule == 1)
 	{
 		bfs(nodes, start_node, order);
