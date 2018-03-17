@@ -1368,7 +1368,7 @@ void bfs(label_node* nodes, int start_node, int nr_class, std::vector<std::pair<
 		{
 			if(!visited[nodes[s].neighbours[i] ] )
 			{
-				nodes[i].isparent = true;
+				nodes[s].isparent = true;
 				res.push_back( std::make_pair(s, nodes[s].neighbours[i] ) );
 				visited[nodes[s].neighbours[i] ] = true;
 				q.push_back( nodes[s].neighbours[i] );
@@ -1464,15 +1464,6 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	}
 }
 
-bool comp(const std::pair<int, int> &lhs, const std::pair<int, int> &rhs)
-{
-	if(lhs.first < rhs.first)
-		return true;
-	else if(lhs.first == rhs.first && lhs.second < rhg.second)
-		return true;
-	else
-		return false;
-}
 
 
 //
@@ -1635,7 +1626,6 @@ model* train(const problem *prob, const parameter *param)
 	if(param->mst_schedule == 1)
 	{
 		bfs(nodes, start_node, nr_class, order);
-		std::sort(order.begin(), order.end(), comp);
 
 		printf("using MST scheduling!\n");
 		for(int j=0; j<order.size(); j++)
@@ -1703,8 +1693,8 @@ model* train(const problem *prob, const parameter *param)
 		}
 
 
-		if(nodes[i].isparent)
-			nodes[i].w = Malloc(double, w_size);
+		if(nodes[i+1].isparent)
+			nodes[i+1].w = Malloc(double, w_size);
 
 		double *w=Malloc(double, w_size);
 
@@ -1724,10 +1714,10 @@ model* train(const problem *prob, const parameter *param)
 		printf("%ith label finished!\n", i+1);
 
 
-		if(nodes[i].isparent)
+		if(nodes[i+1].isparent)
 		{
 			for(int j=0; j<w_size; j++)
-				nodes[i].w[j] = w[j];
+				nodes[i+1].w[j] = w[j];
 		}
 
 		int nzcount = 0;
