@@ -1464,7 +1464,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	}
 }
 
-bool comp(const std::pair &lhs, const std::pair &rhs)
+bool comp(const std::pair<int, int> &lhs, const std::pair<int, int> &rhs)
 {
 	if(lhs.first < rhs.first)
 		return true;
@@ -1636,7 +1636,7 @@ model* train(const problem *prob, const parameter *param)
 	{
 		bfs(nodes, start_node, nr_class, order);
 		std::sort(order.begin(), order.end(), comp);
-		
+
 		printf("using MST scheduling!\n");
 		for(int j=0; j<order.size(); j++)
 		{
