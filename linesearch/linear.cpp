@@ -55,6 +55,21 @@ static void info(const char *fmt,...) {}
 #endif
 
 // define MST problem
+class label_node
+{
+	int id;
+	double *w;
+	bool visited;
+	bool isparent;
+	std::vector<int> neighbours;
+	label_node() {this->id = -1; this->w=NULL; this->visited = false; this->isparent = false; this->neighbours.resize(0); }
+};
+//
+// void label_node::add_child(label_node *child)
+// {
+// 	this->children.push_back(child);
+// }
+
 class Graph{
 private:
 	int V, E;
@@ -63,7 +78,7 @@ private:
 public:
 	Graph(int V, int E);
 	void addEdge(int u, int v, int w);
-	double kruskalMST();
+	int kruskalMST();
 	void printMST();
 };
 
@@ -124,7 +139,7 @@ struct DisjointSet{
 int Graph::kruskalMST(){
     int MSTWeight = 0; //sum of all vertex weights
     std::sort(edges.begin(),edges.end());
-		printf("|E| in kruskal: %d\n", edges.size());
+		//printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
@@ -1211,7 +1226,7 @@ static void transpose(const subproblem *prob, feature_node **x_space_ret, subpro
 
 
 // solve MST problem
-void order_schedule(const problem *prob, const parameter *param, int nr_class)
+void order_schedule(const problem *prob, const parameter *param, int nr_class, label_node* nodes)
 {
 	int l = prob->l;
 	int num_all_labels = 0;
@@ -1274,6 +1289,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 			int lbl1 = i+1;
 			int lbl2 = it->first;
 			it->second = num_pos_per_label[lbl1-1] + num_pos_per_label[lbl2-1] - 2*it->second;
+
 			Ecount += 0.5;
 		}
 		dist_mat[i][0] = num_pos_per_label[i];
@@ -1309,16 +1325,59 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class)
 			if( (i+1) > it->first )
 			{
 				g.addEdge( i+1, it->first, it->second );
+				//if(it->second == 0)
+					//printf("label %d and label %d are the same!\n");
 			}
 		}
 	}
 
-	double weight = g.kruskalMST();
+	int weight = g.kruskalMST();
 	printf("weight of MST is: %d\n", weight);
 
 
+	// construct label_node
+	std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
+	for(it = g.MST.begin();it!=g.MST.end();it++){
+		int lbl1 = it->second.first;
+		int lbl2 = it->second.second;
+		nodes[lbl1].neighbours.push_back(lbl2);
+		nodes[lbl2].neighbours.push_back(lbl1);
+	}
+
 	// std::sort(dist_vec.begin(), dist_vec.end(), sortByweigth);
 
+}
+
+void bfs(label_nodes* nodes, int start_node, std::vector<std::pair<int, int> > &res)
+{
+	if( nodes[start_node].visited )
+		return;
+	nodes[start_node].visited = true;
+	for(int i=0; i<nodes[start_node].neighbours.size(); i++)
+	{
+		if( !nodes[ nodes[start_node].neighbours[i] ].visited )
+		{
+			res.push_back( std::make_pair(start_node, i) );
+			nodes[start_node].isparent = true;
+		}
+		else
+		{
+			continue;
+		}
+	}
+
+	for(int i=0; i<nodes[start_node].neighbours.size(); i++)
+	{
+		if( !nodes[ nodes[start_node].neighbours[i] ].visited )
+		{
+			bfs(nodes, nodes[start_node] .neighbours[i], res );
+		}
+		else
+		{
+			continue;
+		}
+	}
+	return;
 }
 
 
@@ -1546,51 +1605,81 @@ model* train(const problem *prob, const parameter *param)
 
 	//double *w=Malloc(double, w_size);
 	// all negative initialization
-	double *w0 = NULL;
-	if(param->all_neg_init == 1)
+	//double *w0 = NULL;
+
+
+
+	label_node* nodes = Malloc(label_node, nr_class+1);
+	for(i=0;i<(nr_class+1);i++)
 	{
-		w0 = Malloc(double, w_size);
-		subproblem sub_prob_omp;
-		sub_prob_omp.l = l;
-		sub_prob_omp.n = n;
-		sub_prob_omp.x = x;
-		sub_prob_omp.y = Malloc(double,l);
+		nodes[i].id = i;
+		nodes[i].visited = false;
+		nodes[i].isparent = false;
+		nodes.neighbours.resize(0);
+	}
 
-		for(j=0;j<w_size;j++){
-			w0[j] = 0;
+	order_schedule(prob, param, nr_class, nodes);
+
+	int start_node = 0;
+
+	std::vector<std:pair<int, int> > order (0);
+	if(param->mst_schedule == 1)
+	{
+		bfs(nodes, start_node, order);
+		printf("using MST scheduling!\n");
+		for(int j=0; j<order.size(); j++)
+		{
+			printf("%d th problem: from %d to %d \n", j+1, order[j].first, order[j].second);
 		}
-
-		for(k=0; k <sub_prob.l; k ++){
-			sub_prob_omp.y[k] = -1;
-		}
-
-		train_one(&sub_prob_omp, param, w0, weighted_C[i], param->C);
-
-		// param->init_sol = Malloc(double, w_size);
-		// for(j=0;j<w_size;j++)
-		// 	param->init_sol[j] = w0[j];
+	}
+	else if(param->all_neg_init == 1)
+	{
+		//order.resize(0);
+		for(int j=0; j<nr_class; j++)
+			order.push_back( std::make_pair(0, j+1) );
 
 		printf("using all negative initialization!\n");
 	}
-
-	printf("order scheduling:\n");
-	order_schedule(prob, param, nr_class);
-
-	//long long totalnz = 0;
-
-	for(i=0;i<nr_class;i++)
+	else
 	{
+		for(int j=0; j<nr_class; j++)
+			order.push_back( std::make_pair(-1, j+1) );
+	}
+
+
+
+	// calculate for w0, initial problem;
+	nodes[0].w = Malloc(double, w_size);
+
+	subproblem sub_prob_omp;
+	sub_prob_omp.l = l;
+	sub_prob_omp.n = n;
+	sub_prob_omp.x = x;
+	sub_prob_omp.y = Malloc(double,l);
+
+	for(j=0;j<w_size;j++){
+		nodes[0].w[j] = 0;
+	}
+
+	for(k=0; k <sub_prob.l; k ++){
+		sub_prob_omp.y[k] = -1;
+	}
+
+	train_one(&sub_prob_omp, param, nodes[0].w, weighted_C[i], param->C);
+
+
+	//calculate all other nodes
+	std::vector<std::pair<int,int > >::iterator it;
+	for(it=order.begin(); it!=order.end(); it++)
+	{
+		int parent = it->first;
+		i = it->second-1;
+
 		subproblem sub_prob_omp;
 		sub_prob_omp.l = l;
 		sub_prob_omp.n = n;
 		sub_prob_omp.x = x;
 		sub_prob_omp.y = Malloc(double,l);
-
-		// initialize w
-		double *w=Malloc(double, w_size);
-		for(int j=0;j<w_size;j++){
-			w[j] = 0;
-		}
 
 		for(k=0; k <sub_prob.l; k ++){
 			sub_prob_omp.y[k] = -1;
@@ -1602,18 +1691,33 @@ model* train(const problem *prob, const parameter *param)
 			sub_prob_omp.y[ind] = +1;
 		}
 
-		if(w0 != NULL)
-		{
-			//printf("using all negative initialization!\n");
-			for(j=0;j<w_size;j++)
-				w[j] = w0[j];
-		}
 
+		if(nodes[i].isparent)
+			nodes[i].w = Malloc(double, w_size);
+
+		double *w=Malloc(double, w_size);
+
+		if(parent == -1)
+		{
+			for(int j=0; j<w_size; j++)
+				w[j] = 0;
+		}
+		else
+		{
+			for(int j=0; j<w_size; j++)
+				w[j] = nodes[parent].w[j];
+		}
 
 		train_one(&sub_prob_omp, param, w, weighted_C[i], param->C);
 
-		printf("%ith label finished!\n", i);
+		printf("%ith label finished!\n", i+1);
 
+
+		if(nodes[i].isparent)
+		{
+			for(int j=0; j<w_size; j++)
+				nodes[i].w[j] = w[j];
+		}
 
 		int nzcount = 0;
 		for(int j=0;j<w_size;j++){
@@ -1645,8 +1749,81 @@ model* train(const problem *prob, const parameter *param)
 		free(sub_prob_omp.y);
 		free(w);
 
-
 	}
+
+
+
+	//long long totalnz = 0;
+
+	// for(i=0;i<nr_class;i++)
+	// {
+	// 	subproblem sub_prob_omp;
+	// 	sub_prob_omp.l = l;
+	// 	sub_prob_omp.n = n;
+	// 	sub_prob_omp.x = x;
+	// 	sub_prob_omp.y = Malloc(double,l);
+	//
+	// 	// initialize w
+	// 	double *w=Malloc(double, w_size);
+	// 	for(int j=0;j<w_size;j++){
+	// 		w[j] = 0;
+	// 	}
+	//
+	// 	for(k=0; k <sub_prob.l; k ++){
+	// 		sub_prob_omp.y[k] = -1;
+	// 	}
+	//
+	// 	int jj;
+	// 	for(jj=0; jj < classCount[i]; jj++){
+	// 		int ind = labelInd[i][jj];
+	// 		sub_prob_omp.y[ind] = +1;
+	// 	}
+	//
+	// 	if(w0 != NULL)
+	// 	{
+	// 		//printf("using all negative initialization!\n");
+	// 		for(j=0;j<w_size;j++)
+	// 			w[j] = w0[j];
+	// 	}
+	//
+	//
+	// 	train_one(&sub_prob_omp, param, w, weighted_C[i], param->C);
+	//
+	// 	printf("%ith label finished!\n", i);
+	//
+	//
+	// 	int nzcount = 0;
+	// 	for(int j=0;j<w_size;j++){
+	// 		if(fabs(w[j]) < 0.01){
+	// 			w[j]=0;
+	// 		}
+	// 		else
+	// 		{
+	// 			nzcount++;
+	// 		}
+	// 	}
+	// 	//int start = totalnz;
+	// 	//totalnz += nzcount + 1;
+	// 	model_->w[i] = Malloc(feature_node, nzcount + 1);  // -1 for the last
+	//
+	// 	int cc = 0;
+	// 	int j;
+	// 	for(j=0;j<w_size;j++){
+	// 		if(w[j] != 0)
+	// 		{
+	// 			(model_->w[i]+cc)->index = j+1;
+	// 			(model_->w[i]+cc)->value = w[j];
+	// 			cc++;
+	// 		}
+	// 	}
+	// 	(model_->w[i]+cc)->index = -1;  // -1 for the last
+	//
+	//
+	// 	free(sub_prob_omp.y);
+	// 	free(w);
+	//
+	//
+	// }
 			//free(w);
 
 

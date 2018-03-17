@@ -171,6 +171,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 	param.weight = NULL;
 	param.init_sol = NULL;
 	param.all_neg_init = 0; // fangh
+	param.mst_schedule = 0; // fangh
   param.n_process = 1; // fangh
 	flag_cross_validation = 0;
 	flag_C_specified = 0;
@@ -238,6 +239,14 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 
 			case 'm':    //fangh
 				param.all_neg_init = atoi(argv[i]);
+				break;
+
+			case 'x':
+				param.mst_schedule = atoi(argv[i]);
+				break;
+
+			case 'P':
+				param.n_process = atoi(argv[i]);
 				break;
 
 			default:

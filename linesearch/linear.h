@@ -52,6 +52,7 @@ struct parameter
 	double *init_sol;
   int n_process; // for parallel
 	int all_neg_init; //
+	int mst_schedule;
 
 };
 
