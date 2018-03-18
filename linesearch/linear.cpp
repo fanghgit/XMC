@@ -1672,8 +1672,9 @@ model* train(const problem *prob, const parameter *param)
 	//calculate all other nodes
 
 	//std::vector<std::pair<int,int > >::iterator it;
+	omp_set_num_threads(10);
 
-	#pragma omp for schedule(dynamic, 3)
+	#pragma omp for schedule(dynamic)
 	//for(it=order.begin(); it!=order.end(); it++)
 	for(int k=0; k<order.size(); k++)
 	{
