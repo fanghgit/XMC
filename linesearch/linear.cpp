@@ -1675,7 +1675,7 @@ model* train(const problem *prob, const parameter *param)
 	//std::vector<std::pair<int,int > >::iterator it;
 	omp_set_num_threads(10);
 
-	#pragma omp for schedule(dynamic)
+	//#pragma omp parallel for
 	//for(it=order.begin(); it!=order.end(); it++)
 	for(int k=0; k<order.size(); k++)
 	{
@@ -1689,12 +1689,11 @@ model* train(const problem *prob, const parameter *param)
 		sub_prob_omp.x = x;
 		sub_prob_omp.y = Malloc(double,l);
 
-		for(k=0; k <sub_prob.l; k ++){
+		for(int kk=0; kk <sub_prob.l; kk ++){
 			sub_prob_omp.y[k] = -1;
 		}
 
-		int jj;
-		for(jj=0; jj < classCount[i]; jj++){
+		for(int jj=0; jj < classCount[i]; jj++){
 			int ind = labelInd[i][jj];
 			sub_prob_omp.y[ind] = +1;
 		}
