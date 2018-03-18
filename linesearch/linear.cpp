@@ -13,7 +13,6 @@
 #include <list>
 #include <unordered_map>
 #include <algorithm>
-#include <omp.h>
 
 
 
@@ -1671,17 +1670,11 @@ model* train(const problem *prob, const parameter *param)
 
 
 	//calculate all other nodes
-
-	//std::vector<std::pair<int,int > >::iterator it;
-	omp_set_num_threads(10);
-
-	#pragma omp parallel for
-	//for(it=order.begin(); it!=order.end(); it++)
-	for(int k=0; k<order.size(); k++)
+	std::vector<std::pair<int,int > >::iterator it;
+	for(it=order.begin(); it!=order.end(); it++)
 	{
-		std::pair<int, int> edge = order[k];
-		int parent = edge.first;
-		int child = edge.second-1;
+		int parent = it->first;
+		i = it->second-1;
 
 		subproblem sub_prob_omp;
 		sub_prob_omp.l = l;
@@ -1689,18 +1682,19 @@ model* train(const problem *prob, const parameter *param)
 		sub_prob_omp.x = x;
 		sub_prob_omp.y = Malloc(double,l);
 
-		for(int kk=0; kk <sub_prob.l; kk ++){
+		for(k=0; k <sub_prob.l; k ++){
 			sub_prob_omp.y[k] = -1;
 		}
 
-		for(int jj=0; jj < classCount[child]; jj++){
-			int ind = labelInd[child][jj];
+		int jj;
+		for(jj=0; jj < classCount[i]; jj++){
+			int ind = labelInd[i][jj];
 			sub_prob_omp.y[ind] = +1;
 		}
 
 
-		if(nodes[child+1].isparent)
-			nodes[child+1].w = Malloc(double, w_size);
+		if(nodes[i+1].isparent)
+			nodes[i+1].w = Malloc(double, w_size);
 
 		double *w=Malloc(double, w_size);
 
@@ -1715,15 +1709,15 @@ model* train(const problem *prob, const parameter *param)
 				w[j] = nodes[parent].w[j];
 		}
 
-		train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
+		train_one(&sub_prob_omp, param, w, weighted_C[i], param->C);
 
-		printf("%ith label finished!\n", child+1);
+		printf("%ith label finished!\n", i+1);
 
 
-		if(nodes[child+1].isparent)
+		if(nodes[i+1].isparent)
 		{
 			for(int j=0; j<w_size; j++)
-				nodes[child+1].w[j] = w[j];
+				nodes[i+1].w[j] = w[j];
 		}
 
 		int nzcount = 0;
@@ -1738,19 +1732,19 @@ model* train(const problem *prob, const parameter *param)
 		}
 		//int start = totalnz;
 		//totalnz += nzcount + 1;
-		model_->w[child] = Malloc(feature_node, nzcount + 1);  // -1 for the last
+		model_->w[i] = Malloc(feature_node, nzcount + 1);  // -1 for the last
 
 		int cc = 0;
 		int j;
 		for(j=0;j<w_size;j++){
 			if(w[j] != 0)
 			{
-				(model_->w[child]+cc)->index = j+1;
-				(model_->w[child]+cc)->value = w[j];
+				(model_->w[i]+cc)->index = j+1;
+				(model_->w[i]+cc)->value = w[j];
 				cc++;
 			}
 		}
-		(model_->w[child]+cc)->index = -1;  // -1 for the last
+		(model_->w[i]+cc)->index = -1;  // -1 for the last
 
 
 		free(sub_prob_omp.y);
