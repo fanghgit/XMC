@@ -1670,11 +1670,16 @@ model* train(const problem *prob, const parameter *param)
 
 
 	//calculate all other nodes
-	std::vector<std::pair<int,int > >::iterator it;
-	for(it=order.begin(); it!=order.end(); it++)
+
+	//std::vector<std::pair<int,int > >::iterator it;
+
+	#pragma omp for schedule(dynamic, 3)
+	//for(it=order.begin(); it!=order.end(); it++)
+	for(int k=0; k<order.size(); k++)
 	{
-		int parent = it->first;
-		i = it->second-1;
+		std::pair<int, int> edge = order[k];
+		int parent = edge.first;
+		i = edge.second-1;
 
 		subproblem sub_prob_omp;
 		sub_prob_omp.l = l;
