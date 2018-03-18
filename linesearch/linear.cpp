@@ -2256,6 +2256,8 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
     while(x_i->index != -1)
     {
       //printf("x[i]->index: %d\n", x_i->index);
+			if(x_i->index > n)
+				continue;
       struct feature_node *wp = W[ x_i->index - 1 ];
       while(wp->index != -1)
       {
