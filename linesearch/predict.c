@@ -228,9 +228,9 @@ void read_test(const char *filename)
   if(test_prob.n != get_nr_feature(model_))
   {
     //fprintf(stderr,"test nr_feature doesn't match with train. \n");
-		fprintf("nr_feature in train: %d\n", get_nr_feature(model_));
-		fprintf("nr_feature in test: %d\n", test_prob.n);
-		fprintf("prediction continue\n");
+		printf("nr_feature in train: %d\n", get_nr_feature(model_));
+		printf("nr_feature in test: %d\n", test_prob.n);
+		printf("prediction continue\n");
 		//exit(1);
   }
 
