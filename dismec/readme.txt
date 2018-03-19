@@ -43,6 +43,10 @@ java FeatureRemapper ../eurlex/train.txt ../eurlex/train-remapped.txt ../eurlex/
 javac TfIdfCalculator.java
 java TfIdfCalculator ../eurlex/train-remapped.txt ../eurlex/train-remapped-tfidf.txt ../eurlex/test-remapped.txt ../eurlex/test-remapped-tfidf.txt
 
+
+java TfIdfCalculator ../../data/RCV1/rcv1_train_dis_remapped.txt ../../data/RCV1/rcv1_train_dis_remapped_tfidf.txt ../../data/RCV1/rcv1_test_dis_remapped.txt ../../data/RCV1/rcv1_test_dis_remapped_tfidf.txt
+
+
 3) Change labels ID's so that they also start from 1..to..number_of_labels, using the code provided in LabelRelabeler.java
 javac LabelRelabeler.java
 java LabelRelabeler ../eurlex/train-remapped-tfidf.txt ../eurlex/train-remapped-tfidf-relabeled.txt ../eurlex/test-remapped-tfidf.txt ../eurlex/test-remapped-tfidf-relabeled.txt ../eurlex/label_map.txt
@@ -135,3 +139,26 @@ line-search, all neg initialization: 187.679993 sec, eu3.model
 -e 0.001
 line-search, MST initialization: 144.610001 sec,
 line-search, all neg initialization: 142.830002 sec
+
+###
+Reading data
+training model, using w
+save model, w+1
+loading model, w+1
+prediction, add 1
+###
+
+
+
+wiki10: -e 0.001
+
+load model complete, time spent: 362.180000 sec
+test read complete!
+load test file complete, time spent: 1.110000 sec
+time spent on prediction: 234.920000 sec
+precision at 1: 84.55260
+ precision at 3: 74.27952
+ precision at 5: 65.22370
+ndcg at 1: 84.55260
+ ndcg at 3: 76.72839
+ ndcg at 5: 69.84375

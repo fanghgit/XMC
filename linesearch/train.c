@@ -367,7 +367,8 @@ void read_problem(const char *filename)
 			elements++;
 			p = strtok (NULL, " ");
 		}
-	//	elements++; // for bias term
+		if(prob->bias>=0)
+			elements++; // for bias term
 
 	}
 
