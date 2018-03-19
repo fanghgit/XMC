@@ -132,6 +132,19 @@ trust region, zeros initialization:  655.139954 sec
 
 
 
+-B 1 -e 0.001
+
+recision at 1:  82.8030502235
+precision at 3:  69.5152949426
+precision at 5:  57.9700236655
+ndcg at 1:  82.8030502235
+ndcg at 3:  72.9064572919
+ndcg at 5:  67.0386701337
+
+dismec training time: 421.980011
+
+
+
 -e 0.0001
 line-search, MST initialization: 181.520004 sec,  eu2.model
 line-search, all neg initialization: 187.679993 sec, eu3.model

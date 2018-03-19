@@ -463,5 +463,6 @@ void read_problem(const char *filename)
 	}
 	else
 		prob.n=max_index;
+
 	fclose(fp);
 }

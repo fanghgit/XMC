@@ -218,7 +218,7 @@ void read_test(const char *filename)
 
 	if(test_prob.bias >= 0)
 	{
-		test_prob.n=max_index+1;
+		test_prob.n= test_prob.n+1;
 		for(i=1;i<test_prob.l;i++)
 			(test_prob.x[i]-2)->index = test_prob.n;
 		x_space[j-2].index = test_prob.n;

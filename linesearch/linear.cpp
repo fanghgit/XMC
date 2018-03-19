@@ -2241,6 +2241,8 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
   int n = model_->nr_feature;
   int ** res = Malloc(int *, nr_test);
   int i;
+	if(model_->bias >=0)
+		n = n+1;
   //printf("start prediction, nr_test = %d\n", nr_test);
   for(i=0; i<nr_test; i++)
   {
