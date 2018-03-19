@@ -144,6 +144,18 @@ ndcg at 5:  67.0386701337
 dismec training time: 421.980011
 
 
+-m 1 -B 1 -e 0.001
+
+precision at 1: 82.48884
+ precision at 3: 69.21327
+ precision at 5: 57.52166
+ndcg at 1: 82.48884
+ ndcg at 3: 72.63272
+ ndcg at 5: 66.64887
+
+total training time: 216.770004
+
+
 
 -e 0.0001
 line-search, MST initialization: 181.520004 sec,  eu2.model

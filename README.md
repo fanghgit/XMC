@@ -25,18 +25,20 @@ Create folder to hold models: `mkdir linesearch/models`
 
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch/train -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
+  $ ./linesearch/train -B 0.1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
   ```
 Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch/train -m 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch/train -B 0.1 -m 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 Training with MST initialization for EURLex:
   ```
-  $ ./linesearch/train -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch/train -B 0.1 -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 
 By using `-m 1` or `-x 1`, training should be able to finish in around 200 sec.
+
+**Remark:** `-B 1` or `-B 0.1` will not change prediction accuracy, but it will affect model size significantly, `-B 0.1` will make our algorithm faster since the # of iterations relies on $\|x\|_2$.
 
 Note the we changed the stopping criterion for L2L2 solver, in
 liblinear, we stop when
@@ -62,7 +64,7 @@ Prediction: create new folder `mkdir linesearch/output`
 
 Training with DISMEC:
   ```
-  $ ./dismec/dismec/train -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
+  $ ./dismec/dismec/train -B 1 -s 2 -e 0.0001 data/eurlex/train_remap_tfidf.txt dismec/dismec/models/eu_dismec.model
   ```
   ```
   $ ./dismec/dismec/predict data/eurlex/test_remap_tfidf_zeroed.txt dismec/dismec/models/eu_dismec.model dismec/dismec/output/eu_dismec.out
