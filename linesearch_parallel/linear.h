@@ -50,7 +50,7 @@ struct parameter
 	double* weight;
 	double p;
 	double *init_sol;
-  int n_process; // for parallel
+  int n_threads; // for parallel
 	int all_neg_init; //
 	int mst_schedule;
 
