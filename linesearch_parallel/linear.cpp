@@ -1670,11 +1670,13 @@ model* train(const problem *prob, const parameter *param)
 
 
 	//calculate all other nodes
-	std::vector<std::pair<int,int > >::iterator it;
-	for(it=order.begin(); it!=order.end(); it++)
+	//std::vector<std::pair<int,int > >::iterator it;
+
+
+	for(int kk=0; kk<order.size(); kk++)
 	{
-		int parent = it->first;
-		i = it->second-1;
+		int parent = order[kk].first;
+		int child = order[kk].second-1;
 
 		subproblem sub_prob_omp;
 		sub_prob_omp.l = l;
@@ -1687,14 +1689,14 @@ model* train(const problem *prob, const parameter *param)
 		}
 
 		int jj;
-		for(jj=0; jj < classCount[i]; jj++){
-			int ind = labelInd[i][jj];
+		for(jj=0; jj < classCount[child]; jj++){
+			int ind = labelInd[child][jj];
 			sub_prob_omp.y[ind] = +1;
 		}
 
 
-		if(nodes[i+1].isparent)
-			nodes[i+1].w = Malloc(double, w_size);
+		if(nodes[child+1].isparent)
+			nodes[child+1].w = Malloc(double, w_size);
 
 		double *w=Malloc(double, w_size);
 
@@ -1709,15 +1711,15 @@ model* train(const problem *prob, const parameter *param)
 				w[j] = nodes[parent].w[j];
 		}
 
-		train_one(&sub_prob_omp, param, w, weighted_C[i], param->C);
+		train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
 
-		printf("%ith label finished!\n", i+1);
+		printf("%ith label finished!\n", child+1);
 
 
-		if(nodes[i+1].isparent)
+		if(nodes[child+1].isparent)
 		{
 			for(int j=0; j<w_size; j++)
-				nodes[i+1].w[j] = w[j];
+				nodes[child+1].w[j] = w[j];
 		}
 
 		int nzcount = 0;
@@ -1732,19 +1734,19 @@ model* train(const problem *prob, const parameter *param)
 		}
 		//int start = totalnz;
 		//totalnz += nzcount + 1;
-		model_->w[i] = Malloc(feature_node, nzcount + 1);  // -1 for the last
+		model_->w[child] = Malloc(feature_node, nzcount + 1);  // -1 for the last
 
 		int cc = 0;
 		int j;
 		for(j=0;j<w_size;j++){
 			if(w[j] != 0)
 			{
-				(model_->w[i]+cc)->index = j+1;
-				(model_->w[i]+cc)->value = w[j];
+				(model_->w[child]+cc)->index = j+1;
+				(model_->w[child]+cc)->value = w[j];
 				cc++;
 			}
 		}
-		(model_->w[i]+cc)->index = -1;  // -1 for the last
+		(model_->w[child]+cc)->index = -1;  // -1 for the last
 
 
 		free(sub_prob_omp.y);
