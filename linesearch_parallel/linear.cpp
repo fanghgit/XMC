@@ -13,6 +13,7 @@
 #include <list>
 #include <unordered_map>
 #include <algorithm>
+#include <omp.h>
 
 
 
@@ -1672,7 +1673,9 @@ model* train(const problem *prob, const parameter *param)
 	//calculate all other nodes
 	//std::vector<std::pair<int,int > >::iterator it;
 
+	omp_set_num_threads(10);
 
+	#pragma omp parallel for schedule(dynamic,5)
 	for(int kk=0; kk<order.size(); kk++)
 	{
 		int parent = order[kk].first;

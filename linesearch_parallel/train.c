@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <time.h>
 #include "linear.h"
+#include <omp.h>
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 #define INF HUGE_VAL
 
@@ -128,13 +129,13 @@ int main(int argc, char **argv)
 	// }
 	//else
 	//{
-		clock_t start_time = clock();
+		double start_time = omp_get_wtime();
 
 		model_=train(&prob, &param);
 
 		clock_t t = clock();
-		printf("\n\n***********************\n total training time: %f \n***********************\n",
-				(float(t-start_time))/CLOCKS_PER_SEC );
+		printf("\n\n***********************\n total training time: %lf \n***********************\n",
+				omp_get_wtime() - start_time );
 
 		if(save_model(model_file_name, model_))
 		{
