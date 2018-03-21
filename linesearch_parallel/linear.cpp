@@ -2247,12 +2247,16 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
   int ** res = Malloc(int *, nr_test);
   int i;
   //printf("start prediction, nr_test = %d\n", nr_test);
-	double *score = Malloc(double, nr_class);
+	//double *score = Malloc(double, nr_class);
 
+	omp_set_num_threads(16);
+
+	#pragma omp parallel for schedule(dynamic,5)
   for(i=0; i<nr_test; i++)
   {
     //printf("the %d th test sample\n", i);
     //struct feature_node *x_i = x[i];
+		double score[nr_class];
 
     for(int j=0; j<nr_class; j++)
     {
@@ -2302,7 +2306,7 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
       //printf("res[i][j]: %d\n", res[i][j]);
     }
   }
-	free(score); // free score
+	//free(score); // free score
 
   return res;
 }
