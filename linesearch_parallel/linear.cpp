@@ -159,7 +159,7 @@ int Graph::kruskalMST(){
 
 
         if(setU != setV){
-            double w = it->first;
+            int w = it->first;
             MST.push_back( std::make_pair(w, std::make_pair(u,v) ) );
             MSTWeight += it->first;
 

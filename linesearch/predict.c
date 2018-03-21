@@ -218,7 +218,7 @@ void read_test(const char *filename)
 
 	if(test_prob.bias >= 0)
 	{
-		test_prob.n= test_prob.n+1;
+		test_prob.n= get_nr_feature(model_)+1;
 		for(i=1;i<test_prob.l;i++)
 			(test_prob.x[i]-2)->index = test_prob.n;
 		x_space[j-2].index = test_prob.n;
@@ -234,6 +234,26 @@ void read_test(const char *filename)
 		printf("prediction continue\n");
 		//exit(1);
   }
+
+	int kk = 0;
+	struct feature_node *wp = test_prob.x[kk];
+	while(wp->index != -1)
+	{
+		printf("%d:%ld ", wp->value);
+		wp++;
+	}
+	printf("\n");
+
+	kk = 1;
+	wp = test_prob.x[kk];
+	while(wp->index != -1)
+	{
+		printf("%d:%ld ", wp->value);
+		wp++;
+	}
+	printf("\n");
+
+
 
 	fclose(fp);
 	printf("test read complete!\n");

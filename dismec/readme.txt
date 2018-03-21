@@ -154,6 +154,7 @@ ndcg at 1: 82.48884
  ndcg at 5: 66.64887
 
 total training time: 216.770004
+naive: 436.110016
 
 
 
@@ -187,3 +188,19 @@ precision at 1: 84.55260
 ndcg at 1: 84.55260
  ndcg at 3: 76.72839
  ndcg at 5: 69.84375
+
+
+
+
+
+
+
+
+
+EURLex: parallel
+
+1 thread: 222.503462
+
+10 threads: 30.204160
+
+20 threads: 21.546310
