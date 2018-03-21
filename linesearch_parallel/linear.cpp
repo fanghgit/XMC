@@ -2306,8 +2306,8 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
       //printf("res[i][j]: %d\n", res[i][j]);
     }
 		double kk = i;
-		if(!kk%10000)
-			printf("%d complete!\n", kk);
+		//if(!kk%10000)
+		printf("%d complete!\n", kk);
   }
 	//free(score); // free score
 
