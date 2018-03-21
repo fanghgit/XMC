@@ -2249,6 +2249,9 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
   //printf("start prediction, nr_test = %d\n", nr_test);
 	//double *score = Malloc(double, nr_class);
 
+	if(model_->bias >=0)
+		n = n+1;
+
 	omp_set_num_threads(16);
 
 	#pragma omp parallel for schedule(dynamic,5)
