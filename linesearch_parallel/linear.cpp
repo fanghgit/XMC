@@ -2302,7 +2302,7 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
       //printf("res[i][j]: %d\n", res[i][j]);
     }
   }
-	free(score) // free score
+	free(score); // free score
 
   return res;
 }
