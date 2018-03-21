@@ -122,7 +122,8 @@ void read_test(const char *filename)
 			elements++;
 			p = strtok (NULL, " ");
 		}
-	//	elements++; // for bias term
+		if(test_prob.bias >= 0)
+			elements++; // for bias term
 
 	}
 
