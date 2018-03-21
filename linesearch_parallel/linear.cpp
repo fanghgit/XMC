@@ -1619,13 +1619,13 @@ model* train(const problem *prob, const parameter *param)
 		nodes[i].neighbours.resize(0);
 	}
 
-	order_schedule(prob, param, nr_class, nodes);
-
 	int start_node = 0;
 
 	std::vector<std::pair<int, int> > order (0);
 	if(param->mst_schedule == 1)
 	{
+		order_schedule(prob, param, nr_class, nodes);
+				
 		bfs(nodes, start_node, nr_class, order);
 
 		printf("using MST scheduling!\n");
