@@ -23,6 +23,27 @@ Go to linesearch folder and type `make` to build executable(will generate many w
 
 Create folder to hold models: `mkdir linesearch/models`
 
+Parameter options:
+  ```
+    -s : type of solver, default to be L2L2 primal solver
+        -0: L2R_LR
+        -1: L2R_L2LOSS_SVC
+        -2: L1R_L2LOSS_SVC
+        -3: L1R_LR
+        (default 1)
+    -x : initialization
+        -0: naive 0 initialization
+        -1: all negative initialization
+        -2: MST initialization
+        (default 0)
+    -B : bias
+        (default 0)
+    -P : number of threads
+        (default 1)
+    -e : stopping criterion
+        |f'(w)|_2 <= eps|f'(w0)|_2, where w0 = zeros(n,1)
+        (default 0.001)
+  ```
 Training with default initialization for EURLex:
   ```
   $ ./linesearch_parallel/train -B 1 -P 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model

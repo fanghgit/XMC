@@ -204,3 +204,43 @@ EURLex: parallel
 10 threads: 30.204160
 
 20 threads: 21.546310
+
+
+
+
+wiki325 -B 1 -e 0.0001
+
+precision at 1: 36.61527
+ precision at 3: 20.95098
+ precision at 5: 14.68981
+ndcg at 1: 36.61527
+ ndcg at 3: 28.20789
+ ndcg at 5: 26.25156
+
+
+wiki325 -B -1 -e 0.00001
+
+no results
+
+
+
+
+
+
+tree statistics:
+
+EURLex:
+number of subtrees: 2072
+height of the whole tree: 5
+
+AmazonCat13k:
+number of subtrees: 9510
+height of the whole tree: 8
+
+wiki31k
+number of subtrees: 9816
+height of the whole tree: 10
+
+wiki325k
+number of subtrees: 207331
+height of the whole tree: 37
