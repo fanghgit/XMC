@@ -1625,7 +1625,7 @@ model* train(const problem *prob, const parameter *param)
 	if(param->mst_schedule == 1)
 	{
 		order_schedule(prob, param, nr_class, nodes);
-				
+
 		bfs(nodes, start_node, nr_class, order);
 
 		printf("using MST scheduling!\n");
