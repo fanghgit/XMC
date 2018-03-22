@@ -1774,10 +1774,10 @@ model* train(const problem *prob, const parameter *param)
 		//(nodes, start_node, nr_class, order);
 
 		printf("using MST scheduling!\n");
-		for(int j=0; j<order.size(); j++)
-		{
-			printf("%d th problem: from %d to %d \n", j+1, order[j].first, order[j].second);
-		}
+		// for(int j=0; j<order.size(); j++)
+		// {
+		// 	printf("%d th problem: from %d to %d \n", j+1, order[j].first, order[j].second);
+		// }
 	}
 	else if(param->all_neg_init == 1)
 	{
