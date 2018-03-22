@@ -1360,6 +1360,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 			}
 		}
 	}
+	printf("adding edge complete\n");
 
 	int weight = g.kruskalMST();
 	printf("weight of MST is: %d\n", weight);
