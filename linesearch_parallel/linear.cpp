@@ -11,6 +11,7 @@
 #include "tron.h"
 #include <queue>
 #include <list>
+#include <stack>
 #include <unordered_map>
 #include <algorithm>
 #include <omp.h>
@@ -1507,11 +1508,11 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 }
 
 
-void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int *classCount, int **labelInd, int node_idx, int nr_class)
+void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int *classCount, int **labelInd, double *weighted_C, int node_idx, int nr_class)
 {
 	nodes[node_idx].visited = true;  // writing to different node in different threads, should have no conflicts
 	int l = prob->l;
-	int n = prob->n
+	int n = prob->n;
 	int w_size = prob->n;
 
 	// solve to subproblem for label "node_idx"
@@ -1525,7 +1526,7 @@ void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int 
 	sub_prob_omp.x = prob->x;
 	sub_prob_omp.y = Malloc(double,l);
 
-	for(k=0; k <l; k ++){
+	for(int k=0; k <l; k ++){
 		sub_prob_omp.y[k] = -1;
 	}
 
@@ -1598,11 +1599,13 @@ void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int 
 
 	for(int i=0; i<nodes[node_idx].neighbours.size(); i++)
 	{
-		int cc= nodes[noe_idx].neighbours[i];
+		int cc= nodes[node_idx].neighbours[i];
 		if(nodes[cc].visited)
 			continue;
 
-		dfs(model_, prob, param, nodes, cc);   // recursive call for dfs
+		//dfs(model_, prob, param, nodes, cc);   // recursive call for dfs
+		dfs(model_, prob, param, nodes, classCount, labelInd, weighted_C, cc, nr_class);
+
 	}
 
 	// free parent's w to save memory usage
@@ -1829,7 +1832,7 @@ model* train(const problem *prob, const parameter *param)
 	// divided into subtrees
 	std::vector<int> subroots = nodes[0].children;
 
-	printf("number of subtrees: %d\n", nodes[0].children);
+	printf("number of subtrees: %d\n", nodes[0].children.size());
 
 
 	//calculate all other nodes
@@ -1843,7 +1846,7 @@ model* train(const problem *prob, const parameter *param)
 
 		// solve different subtrees in different threads
 		int node_idx = subroots[kk];
-		dfs(model_, prob, param, nodes, classCount, labelInd, node_idx, nr_class)
+		dfs(model_, prob, param, nodes, classCount, labelInd, weighted_C, node_idx, nr_class);
 
 
 	// 	int parent = order[kk].first;
