@@ -1603,11 +1603,9 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	// subproblem is solved now
 
-	for(int i=0; i<nodes[node_idx].neighbours.size(); i++)
+	for(int i=0; i<nodes[node_idx].children.size(); i++)
 	{
-		int cc= nodes[node_idx].neighbours[i];
-		if(nodes[cc].visited)
-			continue;
+		int cc= nodes[node_idx].children[i];
 
 		//dfs(model_, prob, param, nodes, cc);   // recursive call for dfs
 		dfs(model_, prob, param, nodes, classCount, labelInd, weighted_C, cc, nr_class);
@@ -1616,6 +1614,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	// free parent's w to save memory usage
 	free(nodes[child+1].w);
+	nodes[child+1].w = NULL;
 }
 
 //
