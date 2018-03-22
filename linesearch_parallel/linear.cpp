@@ -155,7 +155,7 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 {
 	if(lhs.first < rhs.first)
 		return true;
-	else if(lhs.second.first == 0 || lhs.second.second == 0) // give priority to label 0
+	else if((lhs.first == rhs.first) && (lhs.second.first == 0 || lhs.second.second == 0)) // give priority to label 0
 		return true;
 	else
 		return false;
@@ -1344,7 +1344,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 	// 	}
 	// }
 	int V = nr_class + 1;
-	printf("before construct g, |E|: %d", E);
+	printf("before construct g, |E|: %d\n", E);
 	Graph g(V, E);
 	int u,v,w;
 	for(int i=0; i<nr_class; i++)
