@@ -1290,6 +1290,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 		}
 	}
 
+	printf("dis mat 1 \n");
 
   // count n_pos per label;
 	std::vector<int> num_pos_per_label (nr_class);
@@ -1321,6 +1322,8 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 		Ecount += 1;
 	}
 	int E = (int) Ecount;
+
+	printf("dis mat 2 \n");
 
 	//construct ordered distance vector
 	// vector< graph_edge > dist_vec;
