@@ -164,6 +164,7 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 int Graph::kruskalMST(){
     int MSTWeight = 0; //sum of all vertex weights
     std::sort(edges.begin(),edges.end(), comp);
+		printf("sort complete\n");
 		//printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
@@ -188,6 +189,7 @@ int Graph::kruskalMST(){
             ds.Union(setU,setV);
         }
     }
+		printf("MST complete\n");
     return MSTWeight;
 }
 
