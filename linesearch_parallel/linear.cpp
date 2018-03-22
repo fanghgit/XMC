@@ -1797,7 +1797,7 @@ model* train(const problem *prob, const parameter *param)
 
 	std::vector<std::pair<int, int> > order (0);
 
-	if(param->mst_schedule == 1)
+	if(param->init_strat == 2)
 	{
 		order_schedule(prob, param, nr_class, nodes);
 
@@ -1809,7 +1809,7 @@ model* train(const problem *prob, const parameter *param)
 		// 	printf("%d th problem: from %d to %d \n", j+1, order[j].first, order[j].second);
 		// }
 	}
-	else if(param->all_neg_init == 1)
+	else if(param->init_strat == 1)
 	{
 		//order.resize(0);
 		for(int j=1; j<=nr_class; j++)

@@ -51,8 +51,9 @@ struct parameter
 	double p;
 	double *init_sol;
   int n_threads; // for parallel
-	int all_neg_init; //
-	int mst_schedule;
+	int init_strat;
+	//int all_neg_init; //
+	//int mst_schedule;
 
 };
 
