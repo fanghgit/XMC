@@ -50,14 +50,14 @@ Training with default initialization for EURLex:
   ```
 Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -m 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 Training with MST initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 
-By using `-m 1` or `-x 1`, training should be able to finish in around 200 sec.
+By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
 
 **Remark:** `-B 1` or `-B 0.1` will not change prediction accuracy, but it will affect model size significantly, `-B 0.1` will make our algorithm faster since the # of iterations relies on $$\|x\|_2$$, but `-B 0.1` will increase the model size.
 
