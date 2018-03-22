@@ -1508,7 +1508,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 }
 
 
-void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int *classCount, int **labelInd, double *weighted_C, int node_idx, int nr_class)
+void dfs(model *model_, const problem *prob, const parameter *param, label_node* nodes, int *classCount, int **labelInd, double *weighted_C, int node_idx, int nr_class)
 {
 	nodes[node_idx].visited = true;  // writing to different node in different threads, should have no conflicts
 	int l = prob->l;
@@ -1609,7 +1609,7 @@ void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int 
 	}
 
 	// free parent's w to save memory usage
-	free(nodes[child+1].w)
+	free(nodes[child+1].w);
 }
 
 //
