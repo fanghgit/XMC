@@ -131,23 +131,35 @@ struct DisjointSet{
         }
     }
     int Find(int u){
-        if(u == parent[u]) return parent[u];
-        else return Find(parent[u]);
+        if(u != parent[u])
+					parent[u] = Find(parent[u]);
+        return parent[u];
     }
 
     void Union(int x,int y){
-        x = Find(x);
-        y = Find(y);
-        if(x != y){
-            if(rnk[x] < rnk[y]){
-                rnk[y] += rnk[x];
-                parent[x] = y;
-            }
-            else{
-                rnk[x] += rnk[y];
-                parent[y] = x;
-            }
-        }
+        // x = Find(x);
+        // y = Find(y);
+        // if(x != y){
+        //     if(rnk[x] < rnk[y]){
+        //         rnk[y] += rnk[x];
+        //         parent[x] = y;
+        //     }
+        //     else{
+        //         rnk[x] += rnk[y];
+        //         parent[y] = x;
+        //     }
+        // }
+				x = Find(x), y = Find(y);
+
+        /* Make tree with smaller height
+           a subtree of the other tree  */
+        if (rnk[x] > rnk[y])
+            parent[y] = x;
+        else // If rnk[x] <= rnk[y]
+            parent[x] = y;
+
+        if (rnk[x] == rnk[y])
+            rnk[y]++;
     }
 };
 
