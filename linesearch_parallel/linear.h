@@ -82,7 +82,7 @@ int save_model(const char *model_file_name, const struct model *model_);
 //struct model *load_model(const char *model_file_name, struct feature_node **W);
 struct model *load_model_stat(const char *model_file_name);
 struct feature_node **load_w(const char *model_file_name);
-int ** predict(struct feature_node **x, const model *model_, struct feature_node **W, int nr_test, int k);
+int ** predict(struct feature_node **x, const model *model_, struct feature_node **W, int nr_test, int k, int n_threads);
 void evaluate(int ** pred, struct problem * test_prob, int k);
 
 

@@ -12,6 +12,7 @@ int print_null(const char *s,...) {return 0;}
 
 static int (*info)(const char *fmt,...) = &printf;
 
+int n_threads = 1;
 struct feature_node *x;
 long long max_nr_attr = 64;
 
@@ -276,6 +277,9 @@ int main(int argc, char **argv)
 				info = &print_null;
 				i--;
 				break;
+			case 'P':
+				n_threads = atoi(argv[i]);
+				break;
 			default:
 				fprintf(stderr,"unknown option: -%c\n", argv[i-1][1]);
 				exit_with_help();
@@ -320,7 +324,7 @@ int main(int argc, char **argv)
 
   int k = 5;
   start_time = clock();
-  int ** pred_label = predict(test_prob.x, model_, W, test_prob.l, k);
+  int ** pred_label = predict(test_prob.x, model_, W, test_prob.l, k, n_threads);
   t = clock();
   printf("time spent on prediction: %lf sec\n", (double(t-start_time))/CLOCKS_PER_SEC );
 

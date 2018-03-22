@@ -63,9 +63,19 @@ public:
 	int id;
 	double *w;
 	bool visited;
-	bool isparent;
+	//bool isparent;
 	std::vector<int> neighbours;
-	label_node() {this->id = -1; this->w=NULL; this->visited = false; this->isparent = false; this->neighbours.resize(0); }
+	std::vector<int> children;
+	int parent;
+	label_node() {
+		this->id = -1;
+		this->w=NULL;
+		this->visited = false;
+		//this->isparent = false;
+		this->parent = -1;
+		this->neighbours.resize(0);
+		this->children.resize(0);
+	}
 };
 //
 // void label_node::add_child(label_node *child)
@@ -139,9 +149,20 @@ struct DisjointSet{
         }
     }
 };
+
+bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, std::pair<int,int> > &rhs)
+{
+	if(lhs.first < rhs.first)
+		return true;
+	else if(lhs.second.first == 0 || lhs.second.second == 0) // give priority to label 0
+		return true;
+	else
+		return false;
+}
+
 int Graph::kruskalMST(){
     int MSTWeight = 0; //sum of all vertex weights
-    std::sort(edges.begin(),edges.end());
+    std::sort(edges.begin(),edges.end(), comp);
 		//printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
@@ -1347,37 +1368,57 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 		nodes[lbl2].neighbours.push_back(lbl1);
 	}
 
-	// std::sort(dist_vec.begin(), dist_vec.end(), sortByweigth);
-
-}
-
-void bfs(label_node* nodes, int start_node, int nr_class, std::vector<std::pair<int, int> > &res)
-{
-	bool visited[nr_class+1];
-	for(int i=0; i<(nr_class+1); i++)
-		visited[i] = false;
-
-	visited[start_node] = true;
-	std::list<int> q;
-	q.push_back(start_node);
-
-	while(!q.empty())
+	//dfs traversal, calculate height and store parents and children
+	int height;
+	int node_idx = 0;
+	std::stack<int> s;
+	s.push(node_idx);
+	while(!s.empty())
 	{
-		int s = q.front();
-		q.pop_front();
-		for(int i=0; i<nodes[s].neighbours.size();i++)
+		int popped = s.top();
+		nodes[popped].visited = true;
+		s.pop();
+		for(int ii=0; ii<nodes[popped].neighbours.size(); ii++)
 		{
-			if(!visited[nodes[s].neighbours[i] ] )
+			int cc = nodes[popped].neighbours[ii];
+			if(!nodes[cc].visited)
 			{
-				nodes[s].isparent = true;
-				res.push_back( std::make_pair(s, nodes[s].neighbours[i] ) );
-				visited[nodes[s].neighbours[i] ] = true;
-				q.push_back( nodes[s].neighbours[i] );
+				nodes[popped].children.push_back(cc);
+				nodes[cc].parent = popped;
+				s.push(cc);
 			}
 		}
 	}
 
 }
+
+// void bfs(label_node* nodes, int start_node, int nr_class, std::vector<std::pair<int, int> > &res)
+// {
+// 	bool visited[nr_class+1];
+// 	for(int i=0; i<(nr_class+1); i++)
+// 		visited[i] = false;
+//
+// 	visited[start_node] = true;
+// 	std::list<int> q;
+// 	q.push_back(start_node);
+//
+// 	while(!q.empty())
+// 	{
+// 		int s = q.front();
+// 		q.pop_front();
+// 		for(int i=0; i<nodes[s].neighbours.size();i++)
+// 		{
+// 			if(!visited[nodes[s].neighbours[i] ] )
+// 			{
+// 				nodes[s].isparent = true;
+// 				res.push_back( std::make_pair(s, nodes[s].neighbours[i] ) );
+// 				visited[nodes[s].neighbours[i] ] = true;
+// 				q.push_back( nodes[s].neighbours[i] );
+// 			}
+// 		}
+// 	}
+//
+// }
 
 
 static void train_one(const subproblem *prob, const parameter *param, double *w, double Cp, double Cn)
@@ -1466,6 +1507,107 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 }
 
 
+void dfs(model *model_, problem *prob, parameter *param, label_node* nodes, int *classCount, int **labelInd, int node_idx, int nr_class)
+{
+	nodes[node_idx].visited = true;  // writing to different node in different threads, should have no conflicts
+	int l = prob->l;
+	int n = prob->n
+	int w_size = prob->n;
+
+	// solve to subproblem for label "node_idx"
+
+	int parent = nodes[node_idx].parent;
+	int child = node_idx-1;
+
+	subproblem sub_prob_omp;
+	sub_prob_omp.l = l;
+	sub_prob_omp.n = n;
+	sub_prob_omp.x = prob->x;
+	sub_prob_omp.y = Malloc(double,l);
+
+	for(k=0; k <l; k ++){
+		sub_prob_omp.y[k] = -1;
+	}
+
+	int jj;
+	for(jj=0; jj < classCount[child]; jj++){
+		int ind = labelInd[child][jj];
+		sub_prob_omp.y[ind] = +1;
+	}
+
+
+	if(nodes[child+1].children.size() > 0)
+		nodes[child+1].w = Malloc(double, w_size);
+
+	double *w=Malloc(double, w_size);
+
+	if(parent == -1)
+	{
+		for(int j=0; j<w_size; j++)
+			w[j] = 0;
+	}
+	else
+	{
+		for(int j=0; j<w_size; j++)
+			w[j] = nodes[parent].w[j];
+	}
+
+	train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
+
+	printf("%ith label finished!\n", child+1);
+
+
+	if(nodes[child+1].children.size() > 0)
+	{
+		for(int j=0; j<w_size; j++)
+			nodes[child+1].w[j] = w[j];
+	}
+
+	int nzcount = 0;
+	for(int j=0;j<w_size;j++){
+		if(fabs(w[j]) < 0.01){
+			w[j]=0;
+		}
+		else
+		{
+			nzcount++;
+		}
+	}
+	//int start = totalnz;
+	//totalnz += nzcount + 1;
+	model_->w[child] = Malloc(feature_node, nzcount + 1);  // -1 for the last
+
+	int cc = 0;
+	int j;
+	for(j=0;j<w_size;j++){
+		if(w[j] != 0)
+		{
+			(model_->w[child]+cc)->index = j+1;
+			(model_->w[child]+cc)->value = w[j];
+			cc++;
+		}
+	}
+	(model_->w[child]+cc)->index = -1;  // -1 for the last
+
+
+	free(sub_prob_omp.y);
+	free(w);
+
+
+	// subproblem is solved now
+
+	for(int i=0; i<nodes[node_idx].neighbours.size(); i++)
+	{
+		int cc= nodes[noe_idx].neighbours[i];
+		if(nodes[cc].visited)
+			continue;
+
+		dfs(model_, prob, param, nodes, cc);   // recursive call for dfs
+	}
+
+	// free parent's w to save memory usage
+	free(nodes[child+1].w)
+}
 
 //
 // Interface functions
@@ -1615,18 +1757,21 @@ model* train(const problem *prob, const parameter *param)
 	{
 		nodes[i].id = i;
 		nodes[i].visited = false;
-		nodes[i].isparent = false;
+		//nodes[i].isparent = false;
 		nodes[i].neighbours.resize(0);
+		nodes[i].parent = -1;
+		nodes[i].children.resize(0);
 	}
 
 	int start_node = 0;
 
 	std::vector<std::pair<int, int> > order (0);
+
 	if(param->mst_schedule == 1)
 	{
 		order_schedule(prob, param, nr_class, nodes);
 
-		bfs(nodes, start_node, nr_class, order);
+		//(nodes, start_node, nr_class, order);
 
 		printf("using MST scheduling!\n");
 		for(int j=0; j<order.size(); j++)
@@ -1637,15 +1782,24 @@ model* train(const problem *prob, const parameter *param)
 	else if(param->all_neg_init == 1)
 	{
 		//order.resize(0);
-		for(int j=0; j<nr_class; j++)
-			order.push_back( std::make_pair(0, j+1) );
+		for(int j=1; j<=nr_class; j++)
+		{
+			nodes[0].children.push_back(j);
+			nodes[j].parent = 0;
+		}
+
+		//for(int j=0; j<nr_class; j++)
+		//	order.push_back( std::make_pair(0, j+1) );
 
 		printf("using all negative initialization!\n");
 	}
 	else
 	{
-		for(int j=0; j<nr_class; j++)
-			order.push_back( std::make_pair(-1, j+1) );
+		for(int j=1; j<=nr_class; j++)
+		{
+			nodes[0].children.push_back(j);
+			nodes[j].parent = -1;
+		}
 	}
 
 
@@ -1669,92 +1823,106 @@ model* train(const problem *prob, const parameter *param)
 
 	train_one(&sub_prob_omp, param, nodes[0].w, weighted_C[i], param->C);
 
+	nodes[0].visited = true;
+
+	// MST parallel
+	// divided into subtrees
+	std::vector<int> subroots = nodes[0].children;
+
+	printf("number of subtrees: %d\n", nodes[0].children);
+
 
 	//calculate all other nodes
 	//std::vector<std::pair<int,int > >::iterator it;
 
 	omp_set_num_threads(param->n_threads);
 
-	#pragma omp parallel for schedule(dynamic,5)
-	for(int kk=0; kk<order.size(); kk++)
+	#pragma omp parallel for schedule(dynamic,1)
+	for(int kk=0; kk<subroots.size(); kk++)
 	{
-		int parent = order[kk].first;
-		int child = order[kk].second-1;
 
-		subproblem sub_prob_omp;
-		sub_prob_omp.l = l;
-		sub_prob_omp.n = n;
-		sub_prob_omp.x = x;
-		sub_prob_omp.y = Malloc(double,l);
-
-		for(k=0; k <sub_prob.l; k ++){
-			sub_prob_omp.y[k] = -1;
-		}
-
-		int jj;
-		for(jj=0; jj < classCount[child]; jj++){
-			int ind = labelInd[child][jj];
-			sub_prob_omp.y[ind] = +1;
-		}
+		// solve different subtrees in different threads
+		int node_idx = subroots[kk];
+		dfs(model_, prob, param, nodes, classCount, labelInd, node_idx, nr_class)
 
 
-		if(nodes[child+1].isparent)
-			nodes[child+1].w = Malloc(double, w_size);
-
-		double *w=Malloc(double, w_size);
-
-		if(parent == -1)
-		{
-			for(int j=0; j<w_size; j++)
-				w[j] = 0;
-		}
-		else
-		{
-			for(int j=0; j<w_size; j++)
-				w[j] = nodes[parent].w[j];
-		}
-
-		train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
-
-		printf("%ith label finished!\n", child+1);
-
-
-		if(nodes[child+1].isparent)
-		{
-			for(int j=0; j<w_size; j++)
-				nodes[child+1].w[j] = w[j];
-		}
-
-		int nzcount = 0;
-		for(int j=0;j<w_size;j++){
-			if(fabs(w[j]) < 0.01){
-				w[j]=0;
-			}
-			else
-			{
-				nzcount++;
-			}
-		}
-		//int start = totalnz;
-		//totalnz += nzcount + 1;
-		model_->w[child] = Malloc(feature_node, nzcount + 1);  // -1 for the last
-
-		int cc = 0;
-		int j;
-		for(j=0;j<w_size;j++){
-			if(w[j] != 0)
-			{
-				(model_->w[child]+cc)->index = j+1;
-				(model_->w[child]+cc)->value = w[j];
-				cc++;
-			}
-		}
-		(model_->w[child]+cc)->index = -1;  // -1 for the last
-
-
-		free(sub_prob_omp.y);
-		free(w);
-
+	// 	int parent = order[kk].first;
+	// 	int child = order[kk].second-1;
+	//
+	// 	subproblem sub_prob_omp;
+	// 	sub_prob_omp.l = l;
+	// 	sub_prob_omp.n = n;
+	// 	sub_prob_omp.x = x;
+	// 	sub_prob_omp.y = Malloc(double,l);
+	//
+	// 	for(k=0; k <sub_prob.l; k ++){
+	// 		sub_prob_omp.y[k] = -1;
+	// 	}
+	//
+	// 	int jj;
+	// 	for(jj=0; jj < classCount[child]; jj++){
+	// 		int ind = labelInd[child][jj];
+	// 		sub_prob_omp.y[ind] = +1;
+	// 	}
+	//
+	//
+	// 	if(nodes[child+1].isparent)
+	// 		nodes[child+1].w = Malloc(double, w_size);
+	//
+	// 	double *w=Malloc(double, w_size);
+	//
+	// 	if(parent == -1)
+	// 	{
+	// 		for(int j=0; j<w_size; j++)
+	// 			w[j] = 0;
+	// 	}
+	// 	else
+	// 	{
+	// 		for(int j=0; j<w_size; j++)
+	// 			w[j] = nodes[parent].w[j];
+	// 	}
+	//
+	// 	train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
+	//
+	// 	printf("%ith label finished!\n", child+1);
+	//
+	//
+	// 	if(nodes[child+1].isparent)
+	// 	{
+	// 		for(int j=0; j<w_size; j++)
+	// 			nodes[child+1].w[j] = w[j];
+	// 	}
+	//
+	// 	int nzcount = 0;
+	// 	for(int j=0;j<w_size;j++){
+	// 		if(fabs(w[j]) < 0.01){
+	// 			w[j]=0;
+	// 		}
+	// 		else
+	// 		{
+	// 			nzcount++;
+	// 		}
+	// 	}
+	// 	//int start = totalnz;
+	// 	//totalnz += nzcount + 1;
+	// 	model_->w[child] = Malloc(feature_node, nzcount + 1);  // -1 for the last
+	//
+	// 	int cc = 0;
+	// 	int j;
+	// 	for(j=0;j<w_size;j++){
+	// 		if(w[j] != 0)
+	// 		{
+	// 			(model_->w[child]+cc)->index = j+1;
+	// 			(model_->w[child]+cc)->value = w[j];
+	// 			cc++;
+	// 		}
+	// 	}
+	// 	(model_->w[child]+cc)->index = -1;  // -1 for the last
+	//
+	//
+	// 	free(sub_prob_omp.y);
+	// 	free(w);
+	//
 	}
 
 
@@ -2240,7 +2408,7 @@ void get_labels(const model *model_, long long* label)
 
 
 // predict
-int ** predict(struct feature_node **x, const model *model_, struct feature_node **W, int nr_test, int k)
+int ** predict(struct feature_node **x, const model *model_, struct feature_node **W, int nr_test, int k, int n_threads)
 {
   int nr_class = model_->nr_class;
   int n = model_->nr_feature;
@@ -2252,7 +2420,7 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
 	if(model_->bias >=0)
 		n = n+1;
 
-	omp_set_num_threads(16);
+	omp_set_num_threads(n_threads);
 
 	#pragma omp parallel for schedule(dynamic,5)
   for(i=0; i<nr_test; i++)
@@ -2308,7 +2476,7 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
       //printf("topk_index[j]: %d\n", topk_index[j]);
       //printf("res[i][j]: %d\n", res[i][j]);
     }
-		double kk = i;
+		int kk = i;
 		if(!kk%10000)
 			printf("%d complete!\n", kk);
   }
