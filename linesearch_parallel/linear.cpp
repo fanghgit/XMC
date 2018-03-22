@@ -164,7 +164,6 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 int Graph::kruskalMST(){
     int MSTWeight = 0; //sum of all vertex weights
     std::sort(edges.begin(),edges.end(), comp);
-		printf("sort complete\n");
 		//printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
@@ -189,7 +188,6 @@ int Graph::kruskalMST(){
             ds.Union(setU,setV);
         }
     }
-		printf("MST complete\n");
     return MSTWeight;
 }
 
@@ -1292,7 +1290,6 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 		}
 	}
 
-	printf("dis mat 1 \n");
 
   // count n_pos per label;
 	std::vector<int> num_pos_per_label (nr_class);
@@ -1325,7 +1322,6 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 	}
 	int E = (int) Ecount;
 
-	printf("dis mat 2 \n");
 
 	//construct ordered distance vector
 	// vector< graph_edge > dist_vec;
@@ -1617,6 +1613,20 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	nodes[child+1].w = NULL;
 }
 
+int get_height(label_node *nodes, int node_idx)
+{
+	if(nodes[node_idx].children.size() == 0)
+		return 0;
+	int res = 0;
+	for(int i=0; i<nodes[node_idx].children.size(); i++)
+	{
+		int cc = nodes[node_idx].children[i];
+		int h = get_height(nodes, cc);
+		res = max(res, h+1);
+	}
+	return res;
+}
+
 //
 // Interface functions
 //
@@ -1839,6 +1849,8 @@ model* train(const problem *prob, const parameter *param)
 
 	printf("number of subtrees: %d\n", nodes[0].children.size());
 
+	int height = get_height(nodes, 0);
+	printf("height of the whole tree: %d\n", height);
 
 	//calculate all other nodes
 	//std::vector<std::pair<int,int > >::iterator it;
