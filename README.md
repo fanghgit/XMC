@@ -67,7 +67,7 @@ We stop when
 
 ``|f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2``
 
-or
+and
 
 ``|f'(w)|_2 <= 0.001*|f'(w0)|_2``
 
