@@ -21,7 +21,7 @@ Do if-idf transformation:
   ```
 Go to linesearch folder and type `make` to build executable(will generate many warnings now)
 
-Create folder to hold models: `mkdir linesearch/models`
+Create folder to hold models: `mkdir linesearch_parallel/models`
 
 Parameter options:
   ```
@@ -46,15 +46,15 @@ Parameter options:
   ```
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu1.model
   ```
 Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
   ```
 Training with MST initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
   ```
 
 By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
@@ -76,7 +76,7 @@ where `f` initializations the primal function and `w0 = zeros(n,1)` and pos/neg 
 
 DISMEC's code is changed to use the same stopping criterion.
 
-Prediction: create new folder `mkdir linesearch/output`
+Prediction: create new folder `mkdir linesearch_parallel/output`
 
   ```
   $ ./linesearch_parallel/predict data/eurlex/test_remap_tfidf.txt linesearch/models/eu2.model linesearch/output/eu2.out
