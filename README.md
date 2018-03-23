@@ -46,34 +46,33 @@ Parameter options:
   ```
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu1.model
   ```
 Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 Training with MST initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 0.001 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch/models/eu2.model
   ```
 
 By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
 
 **Remark:** `-B 1` or `-B 0.1` will not change prediction accuracy, but it will affect model size significantly, `-B 0.1` will make our algorithm faster since the # of iterations relies on $$\|x\|_2$$, but `-B 0.1` will increase the model size.
 
-Note the we changed the stopping criterion for L2L2 solver, in
-liblinear, we stop when
+**Stopping criterion**
 
-`|f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2`
+We stop when
 
-where `f` initializations the primal function and `w0 = zeros(n,1)` and pos/neg are # of
-positive/negative data (Descriptionfault 0.01)
+``|f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2``
 
-Here we stop when
+or
 
-`|f'(w)|_2 <= eps|f'(w0)|_2`, and `w0 = zeros(n,1)`
+``|f'(w)|_2 <= 0.001*|f'(w0)|_2``
 
-we can set eps = 0.001 or 0.0001 for experiments
+where `f` initializations the primal function and `w0 = zeros(n,1)` and pos/neg are # ofpositive/negative data. pos/neg is very small for most classes, so we set `eps = 1.0` or `eps=0.1` for experiments.
+
 
 DISMEC's code is changed to use the same stopping criterion.
 
