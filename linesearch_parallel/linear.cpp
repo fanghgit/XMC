@@ -1451,8 +1451,9 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 		if(prob->y[i] > 0)
 			pos++;
 	neg = prob->l - pos;
-	//double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
-	double primal_solver_tol = eps;
+	double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
+	primal_solver_tol = min(primal_solver_tol, 0.001);
+	//double primal_solver_tol = eps;
 
 	function *fun_obj=NULL;
 	switch(param->solver_type)
@@ -2509,7 +2510,7 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
       //printf("res[i][j]: %d\n", res[i][j]);
     }
 		int kk = i;
-		if(!kk%10000)
+		if(kk%10000 == 0)
 			printf("%d complete!\n", kk);
   }
 	//free(score); // free score

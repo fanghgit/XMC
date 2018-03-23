@@ -244,3 +244,7 @@ height of the whole tree: 10
 wiki325k
 number of subtrees: 207331
 height of the whole tree: 37
+
+Amazon670k
+number of subtrees: 235879
+height of the whole tree: 23
