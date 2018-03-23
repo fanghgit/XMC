@@ -41,7 +41,7 @@ Parameter options:
     -P : number of threads
         (default 1)
     -e : stopping criterion
-        |f'(w)|_2 <= min(0.001, eps\*min(pos,neg)/l ) \*|f'(w0)|_2, where w0 = zeros(n,1)
+        |f'(w)|_2 <= min(0.001, eps*min(pos,neg)/l ) *|f'(w0)|_2, where w0 = zeros(n,1)
         (default 0.01)
   ```
 Training with default initialization for EURLex:
@@ -65,7 +65,7 @@ By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
 
 We stop when
 
-``|f'(w)|_2 <= eps\*min(pos,neg)/l\*|f'(w0)|_2``
+``|f'(w)|_2 <= eps*min(pos,neg)/l*|f'(w0)|_2``
 
 or
 
