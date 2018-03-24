@@ -2119,6 +2119,16 @@ model* train(const problem *prob, const parameter *param)
 
 	train_one(&sub_prob_omp, param, nodes[0].w, nodes[0].alpha, weighted_C[i], param->C);
 
+	printf("##################\n");
+	printf("##################\n");
+	printf("##################\n");
+
+	train_one(&sub_prob_omp, param, nodes[0].w, nodes[0].alpha, weighted_C[i], param->C);
+
+	printf("##################\n");
+	printf("##################\n");
+	printf("##################\n");
+
 	nodes[0].visited = true;
 
 	// MST parallel
