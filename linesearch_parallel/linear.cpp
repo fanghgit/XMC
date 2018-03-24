@@ -62,7 +62,8 @@ class label_node
 {
 public:
 	int id;
-	double *w;
+	double *w;  //primal parameters
+	double *alpha; // dual parameters
 	bool visited;
 	//bool isparent;
 	std::vector<int> neighbours;
@@ -70,7 +71,8 @@ public:
 	int parent;
 	label_node() {
 		this->id = -1;
-		this->w=NULL;
+		this->w = NULL;
+		this->alpha = NULL;
 		this->visited = false;
 		//this->isparent = false;
 		this->parent = -1;
@@ -1205,6 +1207,211 @@ static void solve_l1r_lr(
 	delete [] D;
 }
 
+// A coordinate descent algorithm for
+// L1-loss and L2-loss SVM dual problems
+//
+//  min_\alpha  0.5(\alpha^T (Q + D)\alpha) - e^T \alpha,
+//    s.t.      0 <= \alpha_i <= upper_bound_i,
+//
+//  where Qij = yi yj xi^T xj and
+//  D is a diagonal matrix
+//
+// In L1-SVM case:
+// 		upper_bound_i = Cp if y_i = 1
+// 		upper_bound_i = Cn if y_i = -1
+// 		D_ii = 0
+// In L2-SVM case:
+// 		upper_bound_i = INF
+// 		D_ii = 1/(2*Cp)	if y_i = 1
+// 		D_ii = 1/(2*Cn)	if y_i = -1
+//
+// Given:
+// x, y, Cp, Cn
+// eps is the stopping tolerance
+//
+// solution will be put in w
+//
+// See Algorithm 3 of Hsieh et al., ICML 2008
+
+#undef GETI
+#define GETI(i) (y[i]+1)
+// To support weights for instances, use GETI(i) (i)
+
+static void solve_l2r_l1l2_svc(
+	const problem *prob, double *w, double *alpha, double eps,
+	double Cp, double Cn, int solver_type)
+{
+	int l = prob->l;
+	int w_size = prob->n;
+	int i, s, iter = 0;
+	double C, d, G;
+	double *QD = new double[l];
+	int max_iter = 1000;
+	int *index = new int[l];
+	//double *alpha = new double[l];
+	schar *y = new schar[l];
+	int active_size = l;
+
+	// PG: projected gradient, for shrinking and stopping
+	double PG;
+	double PGmax_old = INF;
+	double PGmin_old = -INF;
+	double PGmax_new, PGmin_new;
+
+	// default solver_type: L2R_L2LOSS_SVC_DUAL
+	double diag[3] = {0.5/Cn, 0, 0.5/Cp};
+	double upper_bound[3] = {INF, 0, INF};
+	if(solver_type == L2R_L1LOSS_SVC_DUAL)
+	{
+		diag[0] = 0;
+		diag[2] = 0;
+		upper_bound[0] = Cn;
+		upper_bound[2] = Cp;
+	}
+
+	for(i=0; i<l; i++)
+	{
+		if(prob->y[i] > 0)
+		{
+			y[i] = +1;
+		}
+		else
+		{
+			y[i] = -1;
+		}
+	}
+
+	// Initial alpha can be set here. Note that
+	// 0 <= alpha[i] <= upper_bound[GETI(i)]
+	//for(i=0; i<l; i++)
+	//	alpha[i] = 0;
+
+	//for(i=0; i<w_size; i++)
+	//	w[i] = 0;
+	for(i=0; i<l; i++)
+	{
+		QD[i] = diag[GETI(i)];
+
+		feature_node * const xi = prob->x[i];
+		QD[i] += sparse_operator::nrm2_sq(xi);
+		sparse_operator::axpy(y[i]*alpha[i], xi, w);
+
+		index[i] = i;
+	}
+
+	while (iter < max_iter)
+	{
+		PGmax_new = -INF;
+		PGmin_new = INF;
+
+		for (i=0; i<active_size; i++)
+		{
+			int j = i+rand()%(active_size-i);
+			swap(index[i], index[j]);
+		}
+
+		for (s=0; s<active_size; s++)
+		{
+			i = index[s];
+			const schar yi = y[i];
+			feature_node * const xi = prob->x[i];
+
+			G = yi*sparse_operator::dot(w, xi)-1;
+
+			C = upper_bound[GETI(i)];
+			G += alpha[i]*diag[GETI(i)];
+
+			PG = 0;
+			if (alpha[i] == 0)
+			{
+				if (G > PGmax_old)
+				{
+					active_size--;
+					swap(index[s], index[active_size]);
+					s--;
+					continue;
+				}
+				else if (G < 0)
+					PG = G;
+			}
+			else if (alpha[i] == C)
+			{
+				if (G < PGmin_old)
+				{
+					active_size--;
+					swap(index[s], index[active_size]);
+					s--;
+					continue;
+				}
+				else if (G > 0)
+					PG = G;
+			}
+			else
+				PG = G;
+
+			PGmax_new = max(PGmax_new, PG);
+			PGmin_new = min(PGmin_new, PG);
+
+			if(fabs(PG) > 1.0e-12)
+			{
+				double alpha_old = alpha[i];
+				alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
+				d = (alpha[i] - alpha_old)*yi;
+				sparse_operator::axpy(d, xi, w);
+			}
+		}
+
+		iter++;
+		if(iter % 10 == 0)
+			info(".");
+
+		if(PGmax_new - PGmin_new <= eps)
+		{
+			if(active_size == l)
+				break;
+			else
+			{
+				active_size = l;
+				info("*");
+				PGmax_old = INF;
+				PGmin_old = -INF;
+				continue;
+			}
+		}
+		PGmax_old = PGmax_new;
+		PGmin_old = PGmin_new;
+		if (PGmax_old <= 0)
+			PGmax_old = INF;
+		if (PGmin_old >= 0)
+			PGmin_old = -INF;
+	}
+
+	info("\noptimization finished, #iter = %d\n",iter);
+	if (iter >= max_iter)
+		info("\nWARNING: reaching max number of iterations\nUsing -s 2 may be faster (also see FAQ)\n\n");
+
+	// calculate objective value
+
+	double v = 0;
+	int nSV = 0;
+	for(i=0; i<w_size; i++)
+		v += w[i]*w[i];
+	for(i=0; i<l; i++)
+	{
+		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
+		if(alpha[i] > 0)
+			++nSV;
+	}
+	info("Objective value = %lf\n",v/2);
+	info("nSV = %d\n",nSV);
+
+	delete [] QD;
+	//delete [] alpha;
+	delete [] y;
+	delete [] index;
+}
+
+
 // transpose matrix X from row format to column format
 static void transpose(const subproblem *prob, feature_node **x_space_ret, subproblem *prob_col)
 {
@@ -1436,7 +1643,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 // }
 
 
-static void train_one(const subproblem *prob, const parameter *param, double *w, double Cp, double Cn)
+static void train_one(const subproblem *prob, const parameter *param, double *w, double *alpha, double Cp, double Cn)
 {
 	clock_t start_time = clock();
 	//inner and outer tolerances for TRON
@@ -1459,6 +1666,12 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	function *fun_obj=NULL;
 	switch(param->solver_type)
 	{
+		case L2R_L2LOSS_SVC_DUAL:
+			solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L2LOSS_SVC_DUAL);
+			break;
+		case L2R_L1LOSS_SVC_DUAL:
+			solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L1LOSS_SVC_DUAL);
+			break;
 		case L2R_LR:
 		{
 			double *C = new double[prob->l];
@@ -1530,6 +1743,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	int l = prob->l;
 	int n = prob->n;
 	int w_size = prob->n;
+	double *alpha = NULL;  // initialize alpha
 
 	// solve to subproblem for label "node_idx"
 
@@ -1554,22 +1768,37 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 
 	if(nodes[child+1].children.size() > 0)
+	{
 		nodes[child+1].w = Malloc(double, w_size);
-
+		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+			nodes[child+1].alpha = Malloc(double, l);
+	}
+	// initialize w
 	double *w=Malloc(double, w_size);
+	// initialize alpha
+	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		double *alpha = Malloc(double, l);
 
 	if(parent == -1)
 	{
 		for(int j=0; j<w_size; j++)
 			w[j] = 0;
+		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		{
+			for(int j=0; j<l; j++)
+				alpha[j] = 0;
+		}
 	}
 	else
 	{
 		for(int j=0; j<w_size; j++)
 			w[j] = nodes[parent].w[j];
+		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+			for(int j=0; j<l; j++)
+				alpha[j] = nodes[parent].alpha[j];
 	}
 
-	train_one(&sub_prob_omp, param, w, weighted_C[child], param->C);
+	train_one(&sub_prob_omp, param, w, alpha, weighted_C[child], param->C);
 
 	printf("%ith label finished!\n", child+1);
 
@@ -1578,6 +1807,9 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	{
 		for(int j=0; j<w_size; j++)
 			nodes[child+1].w[j] = w[j];
+		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+			for(int j=0; j<l; j++)
+				nodes[child+1].alpha[j] = alpha[j];
 	}
 
 	int nzcount = 0;
@@ -1609,6 +1841,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	free(sub_prob_omp.y);
 	free(w);
+	free(alpha);
 
 
 	// subproblem is solved now
@@ -1624,7 +1857,9 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	// free parent's w to save memory usage
 	free(nodes[child+1].w);
+	free(nodes[child+1].alpha);
 	nodes[child+1].w = NULL;
+	nodes[child+1].alpha = NULL;
 }
 
 int get_height(label_node *nodes, int node_idx)
@@ -1789,6 +2024,7 @@ model* train(const problem *prob, const parameter *param)
 	{
 		nodes[i].id = i;
 		nodes[i].visited = false;
+		nodes[i].alpha = NULL;
 		//nodes[i].isparent = false;
 		nodes[i].neighbours.resize(0);
 		nodes[i].parent = -1;
@@ -1838,6 +2074,8 @@ model* train(const problem *prob, const parameter *param)
 
 	// calculate for w0, initial problem;
 	nodes[0].w = Malloc(double, w_size);
+	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		nodes[0].alpha = Malloc(double, l);
 
 	subproblem sub_prob_omp;
 	sub_prob_omp.l = l;
@@ -1845,15 +2083,20 @@ model* train(const problem *prob, const parameter *param)
 	sub_prob_omp.x = x;
 	sub_prob_omp.y = Malloc(double,l);
 
+	// initialize w
 	for(j=0;j<w_size;j++){
 		nodes[0].w[j] = 0;
+	}
+	// initialize alpha
+	for(j=0;j<l;j++){
+		nodes[0].alpha[j] = 0;
 	}
 
 	for(k=0; k <sub_prob.l; k ++){
 		sub_prob_omp.y[k] = -1;
 	}
 
-	train_one(&sub_prob_omp, param, nodes[0].w, weighted_C[i], param->C);
+	train_one(&sub_prob_omp, param, nodes[0].w, nodes[0].alpha, weighted_C[i], param->C);
 
 	nodes[0].visited = true;
 
@@ -2655,6 +2898,8 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		return "p < 0";
 
 	if(param->solver_type != L2R_LR
+		&& param->solver_type != L2R_L2LOSS_SVC_DUAL
+		&& param->solver_type != L2R_L1LOSS_SVC_DUAL
 		&& param->solver_type != L2R_L2LOSS_SVC
 		&& param->solver_type != L1R_L2LOSS_SVC
 		&& param->solver_type != L1R_LR)
