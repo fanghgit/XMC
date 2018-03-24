@@ -1300,7 +1300,7 @@ static void solve_l2r_l1l2_svc(
 	}
 
 
-	printf("Initial*************\n\n")
+	printf("Initial*************\n\n");
 
 	double v = 0;
 	int nSV = 0;
