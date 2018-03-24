@@ -44,6 +44,7 @@ struct parameter
 
 	/* these are for training only */
 	double eps;	        /* stopping criteria */
+	double eps2;
 	double C;
 	int nr_weight;
 	int *weight_label;
