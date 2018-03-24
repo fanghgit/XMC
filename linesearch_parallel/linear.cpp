@@ -1238,7 +1238,7 @@ static void solve_l1r_lr(
 // To support weights for instances, use GETI(i) (i)
 
 static void solve_l2r_l1l2_svc(
-	const problem *prob, double *w, double *alpha, double eps,
+	const subproblem *prob, double *w, double *alpha, double eps,
 	double Cp, double Cn, int solver_type)
 {
 	int l = prob->l;
