@@ -2109,9 +2109,10 @@ model* train(const problem *prob, const parameter *param)
 		nodes[0].w[j] = 0;
 	}
 	// initialize alpha
-	for(j=0;j<l;j++){
-		nodes[0].alpha[j] = 0;
-	}
+	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		for(j=0;j<l;j++)
+			nodes[0].alpha[j] = 0;
+
 
 	for(k=0; k <sub_prob.l; k ++){
 		sub_prob_omp.y[k] = -1;
