@@ -215,14 +215,23 @@ ndcg at 1: 92.94092
  ndcg at 3: 85.67381
  ndcg at 5: 82.84235
 
- amazon13k: -B 1 -eps 0.0001
+amazon13k: -B 1 -eps 0.0001
 
  precision at 1: 93.76691
-  precision at 3: 78.68888 
+  precision at 3: 78.68888
   precision at 5: 62.58346
  ndcg at 1: 93.76691
   ndcg at 3: 87.56113
   ndcg at 5: 84.66369
+
+amazon13k: -B 1 -e 1.0 eps = 0.0001
+precision at 1: 93.75354
+ precision at 3: 78.89000
+ precision at 5: 63.66319
+ndcg at 1: 93.75354
+ ndcg at 3: 87.70111
+ ndcg at 5: 85.50187
+
 
 
 wiki325 -B 1 -e 0.0001

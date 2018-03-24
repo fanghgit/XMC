@@ -296,16 +296,16 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 		switch(param.solver_type)
 		{
 			case L2R_LR:
-        param.eps = 0.01;
+        param.eps = 1.0;
         break;
 			case L2R_L2LOSS_SVC:
-				param.eps = 0.01;
+				param.eps = 1.0;
 				break;
 			case L1R_L2LOSS_SVC:
-        param.eps = 0.01;
+        param.eps = 1.0;
         break;
       case L1R_LR:
-				param.eps = 0.01;
+				param.eps = 1.0;
 				break;
 		}
 	}

@@ -41,8 +41,8 @@ Parameter options:
     -P : number of threads
         (default 1)
     -e : stopping criterion
-        |f'(w)|_2 <= min(0.001, eps*min(pos,neg)/l ) *|f'(w0)|_2, where w0 = zeros(n,1)
-        (default 0.01)
+        |f'(w)|_2 <= min(0.0001, eps*min(pos,neg)/l ) *|f'(w0)|_2, where w0 = zeros(n,1)
+        (default 1.0)
   ```
 Training with default initialization for EURLex:
   ```
@@ -69,7 +69,7 @@ We stop when
 
 and
 
-``|f'(w)|_2 <= 0.001*|f'(w0)|_2``
+``|f'(w)|_2 <= 0.0001*|f'(w0)|_2``
 
 where `f` initializations the primal function and `w0 = zeros(n,1)` and pos/neg are # ofpositive/negative data. pos/neg is very small for most classes, so we set `eps = 1.0` or `eps=0.1` for experiments.
 

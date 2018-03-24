@@ -1452,7 +1452,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			pos++;
 	neg = prob->l - pos;
 	double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
-	primal_solver_tol = min(primal_solver_tol, 0.001);
+	primal_solver_tol = min(primal_solver_tol, 0.0001);
 	//double primal_solver_tol = eps;
 
 	function *fun_obj=NULL;
