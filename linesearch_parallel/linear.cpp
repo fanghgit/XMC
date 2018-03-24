@@ -1286,15 +1286,15 @@ static void solve_l2r_l1l2_svc(
 	//for(i=0; i<l; i++)
 	//	alpha[i] = 0;
 
-	//for(i=0; i<w_size; i++)
-	//	w[i] = 0;
+	for(i=0; i<w_size; i++)
+		w[i] = 0;
 	for(i=0; i<l; i++)
 	{
 		QD[i] = diag[GETI(i)];
 
 		feature_node * const xi = prob->x[i];
 		QD[i] += sparse_operator::nrm2_sq(xi);
-		//sparse_operator::axpy(y[i]*alpha[i], xi, w);
+		sparse_operator::axpy(y[i]*alpha[i], xi, w);
 
 		index[i] = i;
 	}
