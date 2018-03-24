@@ -1645,6 +1645,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 
 static void train_one(const subproblem *prob, const parameter *param, double *w, double *alpha, double Cp, double Cn)
 {
+	double wtime = omp_get_wtime();
 	clock_t start_time = clock();
 	//inner and outer tolerances for TRON
 	double eps = param->eps;
@@ -1734,6 +1735,8 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			fprintf(stderr, "ERROR: unknown solver_type\n");
 			break;
 	}
+
+	printf("time spent on train one: %d\n", omp_get_wtime() - wtime);
 }
 
 
@@ -1777,7 +1780,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	double *w=Malloc(double, w_size);
 	// initialize alpha
 	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-		double *alpha = Malloc(double, l);
+		alpha = Malloc(double, l);
 
 	if(parent == -1)
 	{
