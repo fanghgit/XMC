@@ -205,7 +205,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 
 			case 'e':
 				param.eps = atof(argv[i]);
-				if isdigit(argv[i+1][0])
+				if( isdigit(argv[i+1][0]))
 					param.eps2 = atof(argv[i+1]);
 				break;
 
