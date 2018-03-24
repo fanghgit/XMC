@@ -1736,7 +1736,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			break;
 	}
 
-	printf("time spent on train one: %d\n", omp_get_wtime() - wtime);
+	printf("time spent on train one: %lf\n", omp_get_wtime() - wtime);
 }
 
 
