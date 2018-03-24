@@ -79,7 +79,7 @@ DISMEC's code is changed to use the same stopping criterion.
 Prediction: create new folder `mkdir linesearch_parallel/output`
 
   ```
-  $ ./linesearch_parallel/predict data/eurlex/test_remap_tfidf.txt linesearch/models/eu2.model linesearch/output/eu2.out
+  $ ./linesearch_parallel/predict data/eurlex/test_remap_tfidf.txt linesearch_parallel/models/eu2.model linesearch_parallel/output/eu2.out
   ```
 
 Training with DISMEC:

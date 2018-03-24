@@ -206,6 +206,23 @@ EURLex: parallel
 20 threads: 21.546310
 
 
+amazon13k: -B 1 -e 1.0 eps = 0.001
+time spent on prediction: 428.650000 sec
+precision at 1: 92.94092
+ precision at 3: 76.56794
+ precision at 5: 60.92652
+ndcg at 1: 92.94092
+ ndcg at 3: 85.67381
+ ndcg at 5: 82.84235
+
+ amazon13k: -B 1 -eps 0.0001
+
+ precision at 1: 93.76691
+  precision at 3: 78.68888 
+  precision at 5: 62.58346
+ ndcg at 1: 93.76691
+  ndcg at 3: 87.56113
+  ndcg at 5: 84.66369
 
 
 wiki325 -B 1 -e 0.0001
