@@ -1441,6 +1441,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	clock_t start_time = clock();
 	//inner and outer tolerances for TRON
 	double eps = param->eps;
+	double eps2 = param->eps2;
 	double eps_cg = 0.1;
 	if(param->init_sol != NULL)
 		eps_cg = 0.5;
@@ -1452,7 +1453,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			pos++;
 	neg = prob->l - pos;
 	double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
-	primal_solver_tol = min(primal_solver_tol, 0.0001);
+	primal_solver_tol = min(primal_solver_tol, eps2);
 	//double primal_solver_tol = eps;
 
 	function *fun_obj=NULL;
