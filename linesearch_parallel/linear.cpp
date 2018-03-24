@@ -1299,6 +1299,24 @@ static void solve_l2r_l1l2_svc(
 		index[i] = i;
 	}
 
+
+	printf("Initial*************\n\n")
+
+	double v = 0;
+	int nSV = 0;
+	for(i=0; i<w_size; i++)
+		v += w[i]*w[i];
+	for(i=0; i<l; i++)
+	{
+		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
+		if(alpha[i] > 0)
+			++nSV;
+	}
+	info("Initial objective value = %lf\n",v/2);
+	info("nSV = %d\n",nSV);
+
+	printf("\n\n***************");
+
 	while (iter < max_iter)
 	{
 		PGmax_new = -INF;
@@ -1392,8 +1410,8 @@ static void solve_l2r_l1l2_svc(
 
 	// calculate objective value
 
-	double v = 0;
-	int nSV = 0;
+	v = 0;
+	nSV = 0;
 	for(i=0; i<w_size; i++)
 		v += w[i]*w[i];
 	for(i=0; i<l; i++)
