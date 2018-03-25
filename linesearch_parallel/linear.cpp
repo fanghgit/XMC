@@ -1315,11 +1315,11 @@ static void solve_l2r_l1l2_svc(
 
 		if (alpha[i] == 0)
 		{
-			PG = min(G, 0);
+			PG = min(G, 0.0);
 		}
 		else if(alpha[i] == C)
 		{
-			PG = max(G, 0);
+			PG = max(G, 0.0);
 		}
 		else
 			PG = G;
@@ -1445,8 +1445,8 @@ static void solve_l2r_l1l2_svc(
 
 	// calculate objective value
 
-	double v = 0;
-	int nSV = 0;
+	v = 0;
+	nSV = 0;
 	for(i=0; i<w_size; i++)
 		v += w[i]*w[i];
 	for(i=0; i<l; i++)
