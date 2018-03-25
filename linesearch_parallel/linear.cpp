@@ -1269,11 +1269,13 @@ static void solve_l2r_l1l2_svc(
 		upper_bound[2] = Cp;
 	}
 
+	std::vector<int> active_set (0);
 	for(i=0; i<l; i++)
 	{
 		if(prob->y[i] > 0)
 		{
 			y[i] = +1;
+			active_set.push_back(i);
 		}
 		else
 		{
@@ -1299,23 +1301,56 @@ static void solve_l2r_l1l2_svc(
 		index[i] = i;
 	}
 
+	// initial change
+	for(s=0; s<active_set.size(); s++)
+	{
+		i = index[s];
+		const schar yi = y[i];
+		feature_node * const xi = prob->x[i];
 
-	// printf("Initial*************\n\n");
-	//
-	// double v = 0;
-	// int nSV = 0;
-	// for(i=0; i<w_size; i++)
-	// 	v += w[i]*w[i];
-	// for(i=0; i<l; i++)
-	// {
-	// 	v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
-	// 	if(alpha[i] > 0)
-	// 		++nSV;
-	// }
-	// info("Initial objective value = %lf\n",v/2);
-	// info("nSV = %d\n",nSV);
-	//
-	// printf("\n\n***************");
+		G = yi*sparse_operator::dot(w, xi)-1;
+
+		C = upper_bound[GETI(i)];
+		G += alpha[i]*diag[GETI(i)];
+
+		if (alpha[i] == 0)
+		{
+			PG = min(G, 0);
+		}
+		else if(alpha[i] == C)
+		{
+			PG = max(G, 0);
+		}
+		else
+			PG = G;
+
+		if(fabs(PG) > 1.0e-12)
+		{
+			double alpha_old = alpha[i];
+			alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
+			d = (alpha[i] - alpha_old)*yi;
+			sparse_operator::axpy(d, xi, w);
+		}
+
+	}
+
+
+	printf("Initial*************\n\n");
+
+	double v = 0;
+	int nSV = 0;
+	for(i=0; i<w_size; i++)
+		v += w[i]*w[i];
+	for(i=0; i<l; i++)
+	{
+		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
+		if(alpha[i] > 0)
+			++nSV;
+	}
+	info("Initial objective value = %lf\n",v/2);
+	info("nSV = %d\n",nSV);
+
+	printf("\n\n***************");
 
 	while (iter < max_iter)
 	{
