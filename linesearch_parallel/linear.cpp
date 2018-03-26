@@ -2117,7 +2117,7 @@ model* train(const problem *prob, const parameter *param)
 
 		printf("using all negative initialization!\n");
 	}
-	else if(param->init_strat == 2)
+	else if(param->init_strat == 3)
 	{
 		for(int j=1; j<=nr_class; j++)
 		{
@@ -2173,7 +2173,7 @@ model* train(const problem *prob, const parameter *param)
 	// printf("##################\n");
 	// printf("##################\n");
 	// printf("##################\n");
-	if(param->init_strat == 2)
+	if(param->init_strat == 3)
 	{
 		for(j=0; j < w_size; j++)
 			nodes[0].w[j] = 0;
