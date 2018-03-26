@@ -274,3 +274,8 @@ height of the whole tree: 37
 Amazon670k
 number of subtrees: 235879
 height of the whole tree: 23
+
+
+1. PPDSparse: algo and code
+2. SGD
+3. try different data
