@@ -108,8 +108,8 @@ void TRON::tron(double *w, clock_t start_time)
 		daxpy_(&n, &step_size, s, &inc, w, &inc);
 		clock_t t = clock();
     double snorm = dnrm2_(&n, s, &inc);
-		//info("iter %2d f %5.10e |g| %5.10e CG %3d step_size %5.3e snorm %5.10e cg_time %f line_time %f time %f \n", iter, f, gnorm, cg_iter, step_size, snorm
-		//	,(float(cg_time)/CLOCKS_PER_SEC), (float(line_time)/CLOCKS_PER_SEC), (float(t-start_time))/CLOCKS_PER_SEC);
+		info("iter %2d f %5.10e |g| %5.10e CG %3d step_size %5.3e snorm %5.10e cg_time %f line_time %f time %f \n", iter, f, gnorm, cg_iter, step_size, snorm
+			,(float(cg_time)/CLOCKS_PER_SEC), (float(line_time)/CLOCKS_PER_SEC), (float(t-start_time))/CLOCKS_PER_SEC);
 
 		f = fnew;
 		iter++;
@@ -133,7 +133,7 @@ void TRON::tron(double *w, clock_t start_time)
 	}
 	clock_t t = clock();
 	printf("num iter: %i\n", iter);
-	printf("time: %f\n", (float(t-start_time))/CLOCKS_PER_SEC );
+	//printf("time: %f\n", (float(t-start_time))/CLOCKS_PER_SEC );
 
 	delete[] g;
 	delete[] r;
