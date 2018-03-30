@@ -4,6 +4,7 @@ import sys
 import argparse
 import math
 
+# python fastxml_remap.py ../../../data/eurlex/train-remapped-tfidf.txt ../../../data/eurlex/test-remapped-tfidf.txt Data/EUR-Lex/train_tf.txt Data/EUR-Lex/test_tf.txt Data/EUR-Lex/train_lbl.txt Data/EUR-Lex/test_lbl.txt
 
 def remap(input, output_ft, output_lbl):
     f = open(input, 'r')
@@ -31,6 +32,8 @@ def remap(input, output_ft, output_lbl):
         for i in range(1, len(tmp)):
             if tmp[i] == '\n':
                 tmp.pop(i)
+                continue
+            if len(tmp[i]) == 0:
                 continue
             s = tmp[i]
             ss = s.split(':')
