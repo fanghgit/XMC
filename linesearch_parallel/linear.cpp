@@ -241,23 +241,6 @@ public:
 	}
 };
 
-// add sgd solver
-class SvmAsgd
-{
-public:
-	void renorm();
-  double wnorm();
-  double anorm();
-	void trainOne(const feature_node *x, double y, double eta, double mu);
-
-	void train(const feature_node **x, const double *y);
-	int n;
-	int w_size;
-	double lambda;
-	double eta0;
-	double eta1;
-
-}
 
 class l2r_erm_fun: public function
 {
