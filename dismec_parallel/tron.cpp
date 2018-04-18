@@ -80,18 +80,19 @@ void TRON::tron(double *w)
 	delta = dnrm2_(&n, g, &inc);
 	double gnorm1 = delta;
 	double gnorm = gnorm1;
-	printf("eps: %f\n", eps);
-	printf("gnorm: %f\n", gnorm);
-	printf("maxiter: %d\n", max_iter);
+	//printf("eps: %f\n", eps);
+	//printf("gnorm: %f\n", gnorm);
+	//printf("maxiter: %d\n", max_iter);
 
 	if (gnorm <= eps*gnorm1)
 		search = 0;
 
 	iter = 1;
+	max_iter = 1000;
 
 	while (iter <= max_iter && search)
 	{
-		printf("trust region newton start!\n");
+		//printf("trust region newton start!\n");
 		cg_iter = trcg(delta, g, s, r);
 
 		memcpy(w_new, w, sizeof(double)*n);
