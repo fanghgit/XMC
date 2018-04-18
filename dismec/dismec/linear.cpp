@@ -2161,6 +2161,7 @@ static void group_classes(const problem *prob, long long *nr_class_ret, long lon
 
 static void train_one(const subproblem *prob, const parameter *param, double *w, double Cp, double Cn)
 {
+	double wtime = omp_get_wtime();
 	double eps=param->eps;
 	long long pos = 0;
 	long long neg = 0;
@@ -2267,6 +2268,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			fprintf(stderr, "ERROR: unknown solver_type\n");
 			break;
 	}
+	printf("time spent on train one: %lf\n", omp_get_wtime() - wtime);
 }
 
 //
