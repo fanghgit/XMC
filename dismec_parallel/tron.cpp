@@ -82,6 +82,7 @@ void TRON::tron(double *w)
 	double gnorm = gnorm1;
 	printf("eps: %f\n", eps);
 	printf("gnorm: %f\n", gnorm);
+	printf("maxiter: %d\n", max_iter);
 
 	if (gnorm <= eps*gnorm1)
 		search = 0;
