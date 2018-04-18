@@ -1824,6 +1824,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 		}
 		case L2R_L2LOSS_SVC:
 		{
+			printf("L2R_L2LOSS_SVC\n");
 			double *C = new double[prob->l];
 			for(int i = 0; i < prob->l; i++)
 			{
