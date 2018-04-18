@@ -80,6 +80,7 @@ void TRON::tron(double *w)
 	delta = dnrm2_(&n, g, &inc);
 	double gnorm1 = delta;
 	double gnorm = gnorm1;
+	printf("eps: %f\n", eps);
 
 	if (gnorm <= eps*gnorm1)
 		search = 0;
