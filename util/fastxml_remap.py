@@ -4,7 +4,7 @@ import sys
 import argparse
 import math
 
-# python fastxml_remap.py ../../../data/eurlex/train-remapped-tfidf.txt ../../../data/eurlex/test-remapped-tfidf.txt Data/EUR-Lex/train_tf.txt Data/EUR-Lex/test_tf.txt Data/EUR-Lex/train_lbl.txt Data/EUR-Lex/test_lbl.txt
+# python fastxml_remap.py ../../../data/eurlex/train_remap_tfidf.txt ../../../data/eurlex/test_remap_tfidf.txt Data/EUR-Lex/train_ft.txt Data/EUR-Lex/test_ft.txt Data/EUR-Lex/train_lbl.txt Data/EUR-Lex/test_lbl.txt
 
 def remap(input, output_ft, output_lbl):
     f = open(input, 'r')
@@ -12,6 +12,7 @@ def remap(input, output_ft, output_lbl):
     g_lbl = open(output_lbl, 'w')
 
     line_number = 1
+    #f.readline()
     for line in f:
         line = line.strip('\n')
         line = line.strip('\r')
@@ -21,7 +22,8 @@ def remap(input, output_ft, output_lbl):
         # process labels
         if len(tmp[0]) != 0:
             labels = tmp[0].split(',')
-            new_labels = [ (str( int(x) - 1 )+":1") for x in labels ]
+            #new_labels = [ (str( int(x) - 1 )+":1") for x in labels ]
+            new_labels = [ (str( int(x) )+":1") for x in labels ]
             label_line = ' '.join(new_labels)
         else:
             label_line = ""
@@ -35,10 +37,10 @@ def remap(input, output_ft, output_lbl):
                 continue
             if len(tmp[i]) == 0:
                 continue
-            s = tmp[i]
-            ss = s.split(':')
-            ss[0] = str(int(ss[0])-1)
-            tmp[i] = ':'.join(ss)
+            #s = tmp[i]
+            #ss = s.split(':')
+            #ss[0] = str(int(ss[0])-1)
+            #tmp[i] = ':'.join(ss)
         tmp.pop(0)
         newline = ' '.join(tmp)
         print(newline, file = g_ft)

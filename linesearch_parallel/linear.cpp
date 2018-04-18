@@ -241,6 +241,24 @@ public:
 	}
 };
 
+// add sgd solver
+class SvmAsgd
+{
+public:
+	void renorm();
+  double wnorm();
+  double anorm();
+	void trainOne(const feature_node *x, double y, double eta, double mu);
+
+	void train(const feature_node **x, const double *y);
+	int n;
+	int w_size;
+	double lambda;
+	double eta0;
+	double eta1;
+
+}
+
 class l2r_erm_fun: public function
 {
 public:
@@ -1713,6 +1731,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 		if(prob->y[i] > 0)
 			pos++;
 	neg = prob->l - pos;
+	printf("|pos|: %d\n", pos);
 	double primal_solver_tol = eps*max(min(pos,neg), 1)/prob->l;
 	primal_solver_tol = min(primal_solver_tol, eps2);
 	//double primal_solver_tol = eps;
@@ -2698,11 +2717,13 @@ struct feature_node **load_w(const char *model_file_name)
 	nr_w = nr_class;
   //printf("n: %d\n", n);
   struct feature_node **W = Malloc(struct feature_node *, n);
+	long long total_nz = 0;
   for(i=0; i<n; i++)
   {
     int j;
     int nnz;
     FSCANF(fp, "%d ", &nnz);
+		total_nz += nnz;
     //printf("nnz: %d\n", nnz);
     W[i] = Malloc(struct feature_node, nnz+1);
     struct feature_node *wp = W[i];
@@ -2725,7 +2746,7 @@ struct feature_node **load_w(const char *model_file_name)
     }
   }
   //printf("test load model: W[0]->index: %d\n", (W[0]+1)->index);
-
+	printf("total # nnz: %lf\n", total_nz);
 	// model_->w=Malloc(double, w_size*nr_w);
 	// for(i=0; i<w_size; i++)
 	// {

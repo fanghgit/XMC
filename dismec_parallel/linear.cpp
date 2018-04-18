@@ -241,335 +241,393 @@ public:
 	}
 };
 
-// add sgd solver
-class SvmAsgd
-{
-public:
-	void renorm();
-  double wnorm();
-  double anorm();
-	void trainOne(const feature_node *x, double y, double eta, double mu);
 
-	void train(const feature_node **x, const double *y);
-	int n;
-	int w_size;
-	double lambda;
-	double eta0;
-	double eta1;
 
-}
-
-class l2r_erm_fun: public function
-{
-public:
-	l2r_erm_fun(const subproblem *prob, double *C);
-	~l2r_erm_fun();
-
-	double fun(double *w);
-	double line_search(double *d, double *w, double *g, double alpha, double *f);
-	int get_nr_variable(void);
-
-protected:
-	virtual double C_times_loss(int i, double wx_i) = 0;
-	void Xv(double *v, double *Xv);
-	void XTv(double *v, double *XTv);
-
-	double *C;
-	const subproblem *prob;
-	double *wx;
-	double *tmp;
-	double wTw;
-	double current_f;
-};
-
-l2r_erm_fun::l2r_erm_fun(const subproblem *prob, double *C)
-{
-	int l=prob->l;
-
-	this->prob = prob;
-
-	wx = new double[l];
-	tmp = new double[l];
-	this->C = C;
-}
-
-l2r_erm_fun::~l2r_erm_fun()
-{
-	delete[] wx;
-	delete[] tmp;
-}
-
-double l2r_erm_fun::fun(double *w)
-{
-	int i;
-	double f=0;
-	int l=prob->l;
-	int w_size=get_nr_variable();
-
-	wTw = 0;
-	Xv(w, wx);
-
-	for(i=0;i<w_size;i++)
-		wTw += w[i]*w[i];
-	for(i=0;i<l;i++)
-		f += C_times_loss(i, wx[i]);
-	f = f + 0.5 * wTw;
-
-	current_f = f;
-	return(f);
-}
-
-int l2r_erm_fun::get_nr_variable(void)
-{
-	return prob->n;
-}
-
-double l2r_erm_fun::line_search(double *d, double *w, double *g, double alpha, double *f)
-{
-	int i;
-	int l = prob->l;
-	double dTd = 0;
-	double wTd = 0;
-	double gTd = 0;
-	double eta = 0.01;
-	int w_size = get_nr_variable();
-	int max_num_linesearch = 1000;
-	Xv(d, tmp);
-
-	for (i=0;i<w_size;i++)
-	{
-		dTd += d[i] * d[i];
-		wTd += d[i] * w[i];
-		gTd += d[i] * g[i];
-	}
-	int num_linesearch = 0;
-	for(num_linesearch=0; num_linesearch < max_num_linesearch; num_linesearch++)
-	{
-		double loss = 0;
-		for(i=0;i<l;i++)
-		{
-			double inner_product = tmp[i] * alpha + wx[i];
-			loss += C_times_loss(i, inner_product);
-		}
-		*f = loss + (alpha * alpha * dTd + wTw) / 2.0 + alpha * wTd;
-		if (*f - current_f <= eta * alpha * gTd)
-		{
-			for (i=0;i<l;i++)
-				wx[i] += alpha * tmp[i];
-			break;
-		}
-		else
-			alpha *= 0.5;
-	}
-
-	if (num_linesearch >= max_num_linesearch)
-	{
-		*f = current_f;
-		return 0;
-	}
-
-	wTw += alpha * alpha * dTd + 2* alpha * wTd;
-	current_f = *f;
-	return alpha;
-}
-
-void l2r_erm_fun::Xv(double *v, double *Xv)
-{
-	int i;
-	int l=prob->l;
-	feature_node **x=prob->x;
-
-	for(i=0;i<l;i++)
-		Xv[i]=sparse_operator::dot(v, x[i]);
-}
-
-void l2r_erm_fun::XTv(double *v, double *XTv)
-{
-	int i;
-	int l=prob->l;
-	int w_size=get_nr_variable();
-	feature_node **x=prob->x;
-
-	for(i=0;i<w_size;i++)
-		XTv[i]=0;
-	for(i=0;i<l;i++)
-		sparse_operator::axpy(v[i], x[i], XTv);
-}
-
-class l2r_lr_fun: public l2r_erm_fun
+class l2r_lr_fun: public function
 {
 public:
 	l2r_lr_fun(const subproblem *prob, double *C);
 	~l2r_lr_fun();
 
+	double fun(double *w);
 	void grad(double *w, double *g);
 	void Hv(double *s, double *Hs);
 
+	long long get_nr_variable(void);
+
 private:
+	void Xv(double *v, double *Xv);
+	void XTv(double *v, double *XTv);
+
+	double *C;
+	double *z;
 	double *D;
-	double C_times_loss(int i, double wx_i);
+	const subproblem *prob;
 };
 
-l2r_lr_fun::l2r_lr_fun(const subproblem *prob, double *C):
-	l2r_erm_fun(prob, C)
+l2r_lr_fun::l2r_lr_fun(const subproblem *prob, double *C)
 {
-	int l=prob->l;
+	long long l=prob->l;
+
+	this->prob = prob;
+
+	z = new double[l];
 	D = new double[l];
+	this->C = C;
 }
 
 l2r_lr_fun::~l2r_lr_fun()
 {
+	delete[] z;
 	delete[] D;
 }
 
-double l2r_lr_fun::C_times_loss(int i, double wx_i)
+
+double l2r_lr_fun::fun(double *w)
 {
-	double ywx_i = wx_i * prob->y[i];
-	if (ywx_i >= 0)
-		return C[i]*log(1 + exp(-ywx_i));
-	else
-		return C[i]*(-ywx_i + log(1 + exp(ywx_i)));
+	long long i;
+	double f=0;
+	double *y=prob->y;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
+
+	Xv(w, z);
+
+	for(i=0;i<w_size;i++)
+		f += w[i]*w[i];
+	f /= 2.0;
+	for(i=0;i<l;i++)
+	{
+		double yz = y[i]*z[i];
+		if (yz >= 0)
+			f += C[i]*log(1 + exp(-yz));
+		else
+			f += C[i]*(-yz+log(1 + exp(yz)));
+	}
+
+	return(f);
 }
 
 void l2r_lr_fun::grad(double *w, double *g)
 {
-	int i;
+	long long i;
 	double *y=prob->y;
-	int l=prob->l;
-	int w_size=get_nr_variable();
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
 
 	for(i=0;i<l;i++)
 	{
-		tmp[i] = 1/(1 + exp(-y[i]*wx[i]));
-		D[i] = tmp[i]*(1-tmp[i]);
-		tmp[i] = C[i]*(tmp[i]-1)*y[i];
+		z[i] = 1/(1 + exp(-y[i]*z[i]));
+		D[i] = z[i]*(1-z[i]);
+		z[i] = C[i]*(z[i]-1)*y[i];
 	}
-	XTv(tmp, g);
+	XTv(z, g);
 
 	for(i=0;i<w_size;i++)
 		g[i] = w[i] + g[i];
 }
 
+long long l2r_lr_fun::get_nr_variable(void)
+{
+	return prob->n;
+}
+
 void l2r_lr_fun::Hv(double *s, double *Hs)
 {
-	int i;
-	int l=prob->l;
-	int w_size=get_nr_variable();
+	long long i;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
 	double *wa = new double[l];
-	feature_node **x=prob->x;
 
-	for(i=0;i<w_size;i++)
-		Hs[i] = 0;
+	Xv(s, wa);
 	for(i=0;i<l;i++)
-	{
-		feature_node * const xi=x[i];
-		wa[i] = sparse_operator::dot(s, xi);
-
 		wa[i] = C[i]*D[i]*wa[i];
 
-		sparse_operator::axpy(wa[i], xi, Hs);
-	}
+	XTv(wa, Hs);
 	for(i=0;i<w_size;i++)
 		Hs[i] = s[i] + Hs[i];
 	delete[] wa;
 }
 
-class l2r_l2_svc_fun: public l2r_erm_fun
+void l2r_lr_fun::Xv(double *v, double *Xv)
+{
+	long long i;
+	long long l=prob->l;
+	feature_node **x=prob->x;
+
+	for(i=0;i<l;i++)
+	{
+		feature_node *s=x[i];
+		Xv[i]=0;
+		while(s->index!=-1)
+		{
+			Xv[i]+=v[s->index-1]*s->value;
+			s++;
+		}
+	}
+}
+
+void l2r_lr_fun::XTv(double *v, double *XTv)
+{
+	long long i;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
+	feature_node **x=prob->x;
+
+	for(i=0;i<w_size;i++)
+		XTv[i]=0;
+	for(i=0;i<l;i++)
+	{
+		feature_node *s=x[i];
+		while(s->index!=-1)
+		{
+			XTv[s->index-1]+=v[i]*s->value;
+			s++;
+		}
+	}
+}
+
+
+class l2r_l2_svc_fun: public function
 {
 public:
 	l2r_l2_svc_fun(const subproblem *prob, double *C);
 	~l2r_l2_svc_fun();
 
+	double fun(double *w);
 	void grad(double *w, double *g);
 	void Hv(double *s, double *Hs);
 
+	long long get_nr_variable(void);
+
 protected:
+	void Xv(double *v, double *Xv);
+	void subXv(double *v, double *Xv);
 	void subXTv(double *v, double *XTv);
 
-	int *I;
-	int sizeI;
-
-private:
-	double C_times_loss(int i, double wx_i);
+	double *C;
+	double *z;
+	double *D;
+	long long *I;
+	long long sizeI;
+	const subproblem *prob;
 };
 
-l2r_l2_svc_fun::l2r_l2_svc_fun(const subproblem *prob, double *C):
-	l2r_erm_fun(prob, C)
+l2r_l2_svc_fun::l2r_l2_svc_fun(const subproblem *prob, double *C)
 {
-	I = new int[prob->l];
+	long long l=prob->l;
+
+	this->prob = prob;
+
+	z = new double[l];
+	D = new double[l];
+	I = new long long[l];
+	this->C = C;
 }
 
 l2r_l2_svc_fun::~l2r_l2_svc_fun()
 {
+	delete[] z;
+	delete[] D;
 	delete[] I;
 }
 
-double l2r_l2_svc_fun::C_times_loss(int i, double wx_i)
+double l2r_l2_svc_fun::fun(double *w)
 {
-		double d = 1 - prob->y[i] * wx_i;
+	long long i;
+	double f=0;
+	double *y=prob->y;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
+
+	Xv(w, z);
+
+	for(i=0;i<w_size;i++)
+		f += w[i]*w[i];
+	f /= 2.0;
+
+	for(i=0;i<l;i++)
+	{
+		z[i] = y[i]*z[i];
+		double d = 1-z[i];
 		if (d > 0)
-			return C[i] * d * d;
-		else
-			return 0;
+			f += C[i]*d*d;
+	}
+	return(f);
 }
 
 void l2r_l2_svc_fun::grad(double *w, double *g)
 {
-	int i;
+	long long i;
 	double *y=prob->y;
-	int l=prob->l;
-	int w_size=get_nr_variable();
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
 
 	sizeI = 0;
 	for (i=0;i<l;i++)
-	{
-		tmp[i] = wx[i] * y[i];
-		if (tmp[i] < 1)
+		if (z[i] < 1)
 		{
-			tmp[sizeI] = C[i]*y[i]*(tmp[i]-1);
+			z[sizeI] = C[i]*y[i]*(z[i]-1);
 			I[sizeI] = i;
 			sizeI++;
 		}
-	}
-	subXTv(tmp, g);
+	subXTv(z, g);
 
 	for(i=0;i<w_size;i++)
 		g[i] = w[i] + 2*g[i];
 }
 
+long long l2r_l2_svc_fun::get_nr_variable(void)
+{
+	return prob->n;
+}
+
 void l2r_l2_svc_fun::Hv(double *s, double *Hs)
 {
-	int i;
-	int w_size=get_nr_variable();
+	long long i;
+	long long w_size=get_nr_variable();
 	double *wa = new double[sizeI];
-	feature_node **x=prob->x;
 
-	for(i=0;i<w_size;i++)
-		Hs[i]=0;
+	subXv(s, wa);
 	for(i=0;i<sizeI;i++)
-	{
-		feature_node * const xi=x[I[i]];
-		wa[i] = sparse_operator::dot(s, xi);
-
 		wa[i] = C[I[i]]*wa[i];
 
-		sparse_operator::axpy(wa[i], xi, Hs);
-	}
+	subXTv(wa, Hs);
 	for(i=0;i<w_size;i++)
 		Hs[i] = s[i] + 2*Hs[i];
 	delete[] wa;
 }
 
+void l2r_l2_svc_fun::Xv(double *v, double *Xv)
+{
+	long long i;
+	long long l=prob->l;
+	feature_node **x=prob->x;
+
+	for(i=0;i<l;i++)
+	{
+		feature_node *s=x[i];
+		Xv[i]=0;
+		while(s->index!=-1)
+		{
+			Xv[i]+=v[s->index-1]*s->value;
+			s++;
+		}
+	}
+}
+
+void l2r_l2_svc_fun::subXv(double *v, double *Xv)
+{
+	long long i;
+	feature_node **x=prob->x;
+
+	for(i=0;i<sizeI;i++)
+	{
+		feature_node *s=x[I[i]];
+		Xv[i]=0;
+		while(s->index!=-1)
+		{
+			Xv[i]+=v[s->index-1]*s->value;
+			s++;
+		}
+	}
+}
+
 void l2r_l2_svc_fun::subXTv(double *v, double *XTv)
 {
-	int i;
-	int w_size=get_nr_variable();
+	long long i;
+	long long w_size=get_nr_variable();
 	feature_node **x=prob->x;
 
 	for(i=0;i<w_size;i++)
 		XTv[i]=0;
 	for(i=0;i<sizeI;i++)
-		sparse_operator::axpy(v[i], x[I[i]], XTv);
+	{
+		feature_node *s=x[I[i]];
+		while(s->index!=-1)
+		{
+			XTv[s->index-1]+=v[i]*s->value;
+			s++;
+		}
+	}
+}
+
+class l2r_l2_svr_fun: public l2r_l2_svc_fun
+{
+public:
+	l2r_l2_svr_fun(const subproblem *prob, double *C, double p);
+
+	double fun(double *w);
+	void grad(double *w, double *g);
+
+private:
+	double p;
+};
+
+l2r_l2_svr_fun::l2r_l2_svr_fun(const subproblem *prob, double *C, double p):
+	l2r_l2_svc_fun(prob, C)
+{
+	this->p = p;
+}
+
+double l2r_l2_svr_fun::fun(double *w)
+{
+	long long i;
+	double f=0;
+	double *y=prob->y;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
+	double d;
+
+	Xv(w, z);
+
+	for(i=0;i<w_size;i++)
+		f += w[i]*w[i];
+	f /= 2;
+	for(i=0;i<l;i++)
+	{
+		d = z[i] - y[i];
+		if(d < -p)
+			f += C[i]*(d+p)*(d+p);
+		else if(d > p)
+			f += C[i]*(d-p)*(d-p);
+	}
+
+	return(f);
+}
+
+void l2r_l2_svr_fun::grad(double *w, double *g)
+{
+	long long i;
+	double *y=prob->y;
+	long long l=prob->l;
+	long long w_size=get_nr_variable();
+	double d;
+
+	sizeI = 0;
+	for(i=0;i<l;i++)
+	{
+		d = z[i] - y[i];
+
+		// generate index set I
+		if(d < -p)
+		{
+			z[sizeI] = C[i]*(d+p);
+			I[sizeI] = i;
+			sizeI++;
+		}
+		else if(d > p)
+		{
+			z[sizeI] = C[i]*(d-p);
+			I[sizeI] = i;
+			sizeI++;
+		}
+
+	}
+	subXTv(z, g);
+
+	for(i=0;i<w_size;i++)
+		g[i] = w[i] + 2*g[i];
 }
 
 
