@@ -2188,6 +2188,8 @@ model* train(const problem *prob, const parameter *param)
 	// MST parallel
 	// divided into subtrees
 	std::vector<int> subroots = nodes[0].children;
+	// random shuffle subtrees
+	std::random_shuffle( subroots.begin(), subroots.end() );
 
 	printf("number of subtrees: %d\n", nodes[0].children.size());
 

@@ -259,9 +259,14 @@ EURLex:
 number of subtrees: 2072
 height of the whole tree: 5
 
+-e 1.0 0.001
+
+
 AmazonCat13k:
 number of subtrees: 9510
 height of the whole tree: 8
+
+-e 1.0 0.0001
 
 wiki31k
 number of subtrees: 9816
@@ -279,3 +284,47 @@ height of the whole tree: 23
 1. PPDSparse: algo and code
 2. SGD
 3. try different data
+
+58854
+3600 min
+
+training for FastXML
+python fastxml_remap.py ./Data/AmazonCat13k/amazonCat_train.txt ./Data/AmazonCat13k/amazonCat_test.txt ./Data/AmazonCat13k/trn_X_Xf.txt ./Data/AmazonCat13k/tst_X_Xf.txt ./Data/AmazonCat13k/trn_X_Y.txt ./Data/AmazonCat13k/tst_X_Y.txt
+
+./fastXML_train ../Sandbox/Data/EUR-Lex/trn_X_Xf.txt ../Sandbox/Data/EUR-Lex/trn_X_Y.txt ../Sandbox/Results/EUR-Lex/model -T 10 -s 0 -t 50 -b 1.0 -c 1.0 -m 10 -l 10
+
+./fastXML_test ../Sandbox/Data/EUR-Lex/tst_X_Xf.txt ../Sandbox/Results/EUR-Lex/score_mat.txt ../Sandbox/Results/EUR-Lex/model
+
+./multiTrain -s 3 ../data/eurlex/train_remap_tfidf.txt models/eu.model
+
+./multiPred3 ../data/AmazonCat13k/test_remap_tfidf.txt models/amazon13k.model
+
+DISMEC:
+./train -B 1 -s 2 -P 10 -x 0 -e 1.0 0.001 ../data/eurlex/train_remap_tfidf.txt models/eu.model
+
+./train -B 1 -s 2 -e 0.001 ../../data/eurlex/train_remap_tfidf.txt models/eu.model
+
+
+
+function P = helper(score_mat,true_mat,K)
+        num_inst = size(score_mat,2);
+        num_lbl = size(score_mat,1);
+
+        P = zeros(K,1);
+        rank_mat = sort_sparse_mat(score_mat);
+
+        for k=1:K
+                mat = rank_mat;
+                #mat(rank_mat>k) = 0;
+
+                [i,j,s] = find(mat);
+                [m,n] = size(mat);
+                mat = sparse(i,j,s,m,n);
+                
+                mat = spones(mat);
+                mat = mat.*true_mat;
+                num = sum(mat,1);
+
+                P(k) = mean(num/k);
+        end
+end
