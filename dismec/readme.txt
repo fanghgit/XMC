@@ -290,6 +290,10 @@ height of the whole tree: 23
 
 training for FastXML
 python fastxml_remap.py ./Data/AmazonCat13k/amazonCat_train.txt ./Data/AmazonCat13k/amazonCat_test.txt ./Data/AmazonCat13k/trn_X_Xf.txt ./Data/AmazonCat13k/tst_X_Xf.txt ./Data/AmazonCat13k/trn_X_Y.txt ./Data/AmazonCat13k/tst_X_Y.txt
+python fastxml_remap.py ./Data/wiki10/wiki10_train.txt ./Data/wiki10/wiki10_test.txt ./Data/wiki10/trn_X_Xf.txt ./Data/wiki10/tst_X_Xf.txt ./Data/wiki10/trn_X_Y.txt ./Data/wiki10/tst_X_Y.txt
+python fastxml_remap.py ./Data/Amazon670k/amazon_train.txt ./Data/Amazon670k/amazon_test.txt ./Data/Amazon670k/trn_X_Xf.txt ./Data/Amazon670k/tst_X_Xf.txt ./Data/Amazon670k/trn_X_Y.txt ./Data/Amazon670k/tst_X_Y.txt
+python fastxml_remap.py ./Data/AmazonCat14k/amazonCat-14K_train.txt ./Data/AmazonCat14k/amazonCat-14K_test.txt ./Data/AmazonCat14k/trn_X_Xf.txt ./Data/AmazonCat14k/tst_X_Xf.txt ./Data/AmazonCat14k/trn_X_Y.txt ./Data/AmazonCat14k/tst_X_Y.txt
+
 
 ./fastXML_train ../Sandbox/Data/EUR-Lex/trn_X_Xf.txt ../Sandbox/Data/EUR-Lex/trn_X_Y.txt ../Sandbox/Results/EUR-Lex/model -T 10 -s 0 -t 50 -b 1.0 -c 1.0 -m 10 -l 10
 
@@ -319,8 +323,13 @@ function P = helper(score_mat,true_mat,K)
 
                 [i,j,s] = find(mat);
                 [m,n] = size(mat);
+                idx = i <= m;
+                i = i(idx);
+                j = j(idx);
+                s = s(idx);
+
                 mat = sparse(i,j,s,m,n);
-                
+
                 mat = spones(mat);
                 mat = mat.*true_mat;
                 num = sum(mat,1);
@@ -328,3 +337,24 @@ function P = helper(score_mat,true_mat,K)
                 P(k) = mean(num/k);
         end
 end
+
+
+
+addpath(genpath('../Tools'));
+trn_X_Y = read_text_mat('../Sandbox/Data/AmazonCat14k/trn_X_Y.txt');
+tst_X_Y = read_text_mat('../Sandbox/Data/AmazonCat14k/tst_X_Y.txt');
+score_mat = read_text_mat('../Sandbox/Results/AmazonCat14k/score_mat.txt');
+
+
+m = 10
+n = 10
+pos = {}
+for i in range(1,m+1):
+  pos[i] = +1
+
+pos[m+1] = 0
+
+for j in range(m+2, m+n+2):
+  pos[j] = -1
+
+class

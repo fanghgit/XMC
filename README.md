@@ -41,20 +41,20 @@ Parameter options:
     -P : number of threads
         (default 1)
     -e : stopping criterion
-        |f'(w)|_2 <= min(0.0001, eps*min(pos,neg)/l ) *|f'(w0)|_2, where w0 = zeros(n,1)
+        |f'(w)|_2 <= min(0.0001, eps*min(pos,neg)/l ) *|f'(0)|_2
         (default 1.0)
   ```
 Training with default initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu1.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -e 1.0 0.0001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu1.model
   ```
 Training with all negative initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 1 -e 1.0 0.0001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
   ```
 Training with MST initialization for EURLex:
   ```
-  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 1.0 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
+  $ ./linesearch_parallel/train -B 1 -P 1 -x 2 -e 1.0 0.0001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu2.model
   ```
 
 By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
