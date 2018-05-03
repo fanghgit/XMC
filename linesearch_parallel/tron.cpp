@@ -55,6 +55,82 @@ TRON::~TRON()
 {
 }
 
+void TRON::gd(double *w)
+{
+	int n = fun_obj->get_nr_variable();
+	int i, cg_iter;
+	double step_size, one=1.0;
+	double f, fnew, actred;
+	double init_step_size = 1;
+	int search = 1, iter = 1, inc = 1;
+	double *s = new double[n];
+	double *r = new double[n];
+	double *g = new double[n];
+
+
+	double *w0 = new double[n];
+	for (i=0; i<n; i++)
+		w0[i] = 0;
+	fun_obj->fun(w0);
+	fun_obj->grad(w0, g);
+	double gnorm0 = dnrm2_(&n, g, &inc);
+	delete [] w0;
+	printf("eps = %.16e, |g0| = %.16e\n", eps, gnorm0);
+	f = fun_obj->fun(w);
+	fun_obj->grad(w, g);
+	double gnorm = dnrm2_(&n, g, &inc);
+
+	if (gnorm <= eps*gnorm0)
+		search = 0;
+
+	iter = 1;
+	// calculate gradient norm at w=0 for stopping condition.
+	//double *w_new = new double[n];
+	while (iter <= max_iter && search)
+	{
+		//memcpy(w_new, w, sizeof(double)*n);
+		//daxpy_(&n, &one, s, &inc, w_new, &inc);
+
+		//clock_t line_time = clock();
+		step_size = fun_obj->line_search(g, w, g, init_step_size, &fnew);
+		//line_time = clock() - line_time;
+		actred = f - fnew;
+
+		if (step_size == 0)
+		{
+			info("WARNING: line search fails\n");
+			break;
+		}
+		daxpy_(&n, &step_size, s, &inc, w, &inc);
+		//clock_t t = clock();
+		//double snorm = dnrm2_(&n, s, &inc);
+		//info("iter %2d f %5.10e |g| %5.10e CG %3d step_size %5.3e snorm %5.10e cg_time %f line_time %f time %f \n", iter, f, gnorm, cg_iter, step_size, snorm
+		//	,(float(cg_time)/CLOCKS_PER_SEC), (float(line_time)/CLOCKS_PER_SEC), (float(t-start_time))/CLOCKS_PER_SEC);
+
+		f = fnew;
+		iter++;
+
+		fun_obj->grad(w, g);
+
+		gnorm = dnrm2_(&n, g, &inc);
+		if (gnorm <= eps*gnorm0)
+			break;
+		if (f < -1.0e+32)
+		{
+			info("WARNING: f < -1.0e+32\n");
+			break;
+		}
+	}
+	printf("num iter: %i\n", iter);
+	//printf("time: %f\n", (float(t-start_time))/CLOCKS_PER_SEC );
+
+	delete[] g;
+	delete[] r;
+	//delete[] w_new;
+	delete[] s;
+}
+
+
 void TRON::tron(double *w, clock_t start_time)
 {
 	int n = fun_obj->get_nr_variable();

@@ -19,6 +19,7 @@ public:
 	TRON(const function *fun_obj, double eps = 0.1, double eps_cg = 0.1, int max_iter = 1000);
 	~TRON();
 
+	void gd(double *w);
 	void tron(double *w, clock_t start_time=0);
 	void set_print_string(void (*i_print) (const char *buf));
 
