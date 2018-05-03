@@ -699,3 +699,111 @@ optimal obj: 3865.82
 # iter: 98 time: 60.4431, primal obj: 4162.67
 # iter: 99 time: 61.0622, primal obj: 4162.33
 k=1137, #pos=69, #act_iter=99, w_nnz=46125, a_nnz=60028, prod_time=20.1, select_time=1.75, sub_time=3.48, train_time=61.1
+
+
+
+kk: 9673
+*********** accuracy test begins ************
+randomized CD iter: 200
+#pos=54, #ran_iter=200, w_nnz=203860, a_nnz=28856, time=150.02
+optimal obj: 3551.83
+# iter: 1 time: 0.419325, primal obj: 354179
+# iter: 2 time: 0.862653, primal obj: 330962
+# iter: 3 time: 1.27899, primal obj: 256725
+# iter: 4 time: 1.72838, primal obj: 207343
+# iter: 5 time: 2.19955, primal obj: 169074
+# iter: 6 time: 2.69253, primal obj: 132219
+# iter: 7 time: 3.17673, primal obj: 86974.5
+# iter: 8 time: 3.74413, primal obj: 65873.1
+# iter: 9 time: 4.27768, primal obj: 50393.2
+# iter: 10 time: 4.81747, primal obj: 30279.2
+# iter: 11 time: 5.38708, primal obj: 20737.5
+# iter: 12 time: 5.96539, primal obj: 13410.4
+# iter: 13 time: 6.60137, primal obj: 9048.2
+# iter: 14 time: 7.28, primal obj: 6967.96
+# iter: 15 time: 7.90283, primal obj: 5526.84
+# iter: 16 time: 8.54416, primal obj: 4812.2
+# iter: 17 time: 9.15772, primal obj: 4451.72
+# iter: 18 time: 9.75643, primal obj: 4311.57
+# iter: 19 time: 10.3713, primal obj: 4206.71
+# iter: 20 time: 11.0213, primal obj: 4146.67
+# iter: 21 time: 11.6284, primal obj: 4111.08
+# iter: 22 time: 12.2176, primal obj: 4082.09
+# iter: 23 time: 12.8281, primal obj: 4064.25
+# iter: 24 time: 13.4398, primal obj: 4041.7
+# iter: 25 time: 14.0395, primal obj: 4018.18
+# iter: 26 time: 14.6648, primal obj: 4010.04
+# iter: 27 time: 15.2861, primal obj: 3995.59
+# iter: 28 time: 15.8978, primal obj: 3985.31
+# iter: 29 time: 16.5138, primal obj: 3974.63
+# iter: 30 time: 17.1228, primal obj: 3967.08
+# iter: 31 time: 17.7163, primal obj: 3963.38
+# iter: 32 time: 18.3227, primal obj: 3961.13
+# iter: 33 time: 18.9332, primal obj: 3958.57
+# iter: 34 time: 19.5562, primal obj: 3956.63
+# iter: 35 time: 20.1567, primal obj: 3950.48
+# iter: 36 time: 20.7587, primal obj: 3947.58
+# iter: 37 time: 21.3745, primal obj: 3942.22
+# iter: 38 time: 21.9838, primal obj: 3937.15
+# iter: 39 time: 22.5981, primal obj: 3933.36
+# iter: 40 time: 23.2162, primal obj: 3932.42
+# iter: 41 time: 23.8529, primal obj: 3931.4
+# iter: 42 time: 24.4535, primal obj: 3924.75
+# iter: 43 time: 25.0645, primal obj: 3924
+# iter: 44 time: 25.678, primal obj: 3922.2
+# iter: 45 time: 26.2771, primal obj: 3918.64
+# iter: 46 time: 26.8965, primal obj: 3918.3
+# iter: 47 time: 27.514, primal obj: 3917.34
+# iter: 48 time: 28.1356, primal obj: 3913.39
+# iter: 49 time: 28.7331, primal obj: 3910.99
+# iter: 50 time: 29.34, primal obj: 3908.04
+# iter: 51 time: 29.9548, primal obj: 3905.68
+# iter: 52 time: 30.5898, primal obj: 3905.1
+# iter: 53 time: 31.2053, primal obj: 3903.62
+# iter: 54 time: 31.8342, primal obj: 3902.51
+# iter: 55 time: 32.4455, primal obj: 3899.39
+# iter: 56 time: 33.0572, primal obj: 3896.47
+# iter: 57 time: 33.6701, primal obj: 3893.63
+# iter: 58 time: 34.2833, primal obj: 3892.82
+# iter: 59 time: 34.8883, primal obj: 3891.2
+# iter: 60 time: 35.4957, primal obj: 3890.48
+# iter: 61 time: 36.1229, primal obj: 3890
+# iter: 62 time: 36.7256, primal obj: 3887.25
+# iter: 63 time: 37.3432, primal obj: 3887.05
+# iter: 64 time: 37.9654, primal obj: 3886.92
+# iter: 65 time: 38.5887, primal obj: 3885.53
+# iter: 66 time: 39.2005, primal obj: 3885.2
+# iter: 67 time: 39.8254, primal obj: 3884.07
+# iter: 68 time: 40.4479, primal obj: 3882.62
+# iter: 69 time: 41.0537, primal obj: 3881.74
+# iter: 70 time: 41.6676, primal obj: 3881.68
+# iter: 71 time: 42.2749, primal obj: 3881.23
+# iter: 72 time: 42.8747, primal obj: 3880.38
+# iter: 73 time: 43.4788, primal obj: 3879.93
+# iter: 74 time: 44.077, primal obj: 3879.29
+# iter: 75 time: 44.6867, primal obj: 3879.1
+# iter: 76 time: 45.2931, primal obj: 3879.1
+# iter: 77 time: 45.9182, primal obj: 3878.11
+# iter: 78 time: 46.5427, primal obj: 3878.05
+# iter: 79 time: 47.1574, primal obj: 3878.05
+# iter: 80 time: 47.7603, primal obj: 3877.98
+# iter: 81 time: 48.3573, primal obj: 3877.97
+# iter: 82 time: 48.9722, primal obj: 3876.35
+# iter: 83 time: 49.6293, primal obj: 3876.19
+# iter: 84 time: 50.2496, primal obj: 3876.19
+# iter: 85 time: 50.8545, primal obj: 3876.19
+# iter: 86 time: 51.4714, primal obj: 3875.87
+# iter: 87 time: 52.0891, primal obj: 3875.93
+# iter: 88 time: 52.7014, primal obj: 3874.99
+# iter: 89 time: 53.3385, primal obj: 3874.77
+# iter: 90 time: 53.9657, primal obj: 3874.76
+# iter: 91 time: 54.5757, primal obj: 3873.93
+# iter: 92 time: 55.1861, primal obj: 3873.82
+# iter: 93 time: 55.8059, primal obj: 3873.83
+# iter: 94 time: 56.4173, primal obj: 3872.11
+# iter: 95 time: 57.0601, primal obj: 3871.21
+# iter: 96 time: 57.6572, primal obj: 3871.01
+# iter: 97 time: 58.2641, primal obj: 3871
+# iter: 98 time: 58.8669, primal obj: 3870.94
+# iter: 99 time: 59.4819, primal obj: 3870.91
+k=9673, #pos=54, #act_iter=99, w_nnz=43069, a_nnz=56259, prod_time=19.7, select_time=1.72, sub_time=3.06, train_time=59.5

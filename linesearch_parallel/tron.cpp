@@ -95,6 +95,7 @@ void TRON::gd(double *w)
 
 		//clock_t line_time = clock();
 		step_size = fun_obj->line_search(g, w, g, init_step_size, &fnew);
+		printf("stepsize: %1.3e\n", step_size);
 		//line_time = clock() - line_time;
 		actred = f - fnew;
 
