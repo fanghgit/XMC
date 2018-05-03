@@ -36,7 +36,7 @@ struct subproblem
 	double bias;            /* < 0 if no bias term */
 };
 
-enum { L2R_LR, L2R_L2LOSS_SVC, L1R_L2LOSS_SVC, L1R_LR }; /* solver_type */
+enum { L2R_LR, L2R_L2LOSS_SVC, L1R_L2LOSS_SVC, L1R_LR, L2R_L2LOSS_SVC_GD}; /* solver_type */
 
 struct parameter
 {

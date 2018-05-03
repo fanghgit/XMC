@@ -1234,236 +1234,236 @@ static void solve_l1r_lr(
 //
 // See Algorithm 3 of Hsieh et al., ICML 2008
 
-#undef GETI
-#define GETI(i) (y[i]+1)
-// To support weights for instances, use GETI(i) (i)
-
-static void solve_l2r_l1l2_svc(
-	const subproblem *prob, double *w, double *alpha, double eps,
-	double Cp, double Cn, int solver_type)
-{
-	int l = prob->l;
-	int w_size = prob->n;
-	int i, s, iter = 0;
-	double C, d, G;
-	double *QD = new double[l];
-	int max_iter = 1000;
-	int *index = new int[l];
-	//double *alpha = new double[l];
-	schar *y = new schar[l];
-	int active_size = l;
-
-	// PG: projected gradient, for shrinking and stopping
-	double PG;
-	double PGmax_old = INF;
-	double PGmin_old = -INF;
-	double PGmax_new, PGmin_new;
-
-	// default solver_type: L2R_L2LOSS_SVC_DUAL
-	double diag[3] = {0.5/Cn, 0, 0.5/Cp};
-	double upper_bound[3] = {INF, 0, INF};
-	if(solver_type == L2R_L1LOSS_SVC_DUAL)
-	{
-		diag[0] = 0;
-		diag[2] = 0;
-		upper_bound[0] = Cn;
-		upper_bound[2] = Cp;
-	}
-
-	std::vector<int> active_set (0);
-	for(i=0; i<l; i++)
-	{
-		if(prob->y[i] > 0)
-		{
-			y[i] = +1;
-			active_set.push_back(i);
-		}
-		else
-		{
-			y[i] = -1;
-		}
-	}
-
-	// Initial alpha can be set here. Note that
-	// 0 <= alpha[i] <= upper_bound[GETI(i)]
-	//for(i=0; i<l; i++)
-	//	alpha[i] = 0;
-
-	for(i=0; i<w_size; i++)
-		w[i] = 0;
-	for(i=0; i<l; i++)
-	{
-		QD[i] = diag[GETI(i)];
-
-		feature_node * const xi = prob->x[i];
-		QD[i] += sparse_operator::nrm2_sq(xi);
-		sparse_operator::axpy(y[i]*alpha[i], xi, w);
-
-		index[i] = i;
-	}
-
-	// initial change
-	for(s=0; s<active_set.size(); s++)
-	{
-		i = index[s];
-		const schar yi = y[i];
-		feature_node * const xi = prob->x[i];
-
-		G = yi*sparse_operator::dot(w, xi)-1;
-
-		C = upper_bound[GETI(i)];
-		G += alpha[i]*diag[GETI(i)];
-
-		if (alpha[i] == 0)
-		{
-			PG = min(G, 0.0);
-		}
-		else if(alpha[i] == C)
-		{
-			PG = max(G, 0.0);
-		}
-		else
-			PG = G;
-
-		if(fabs(PG) > 1.0e-12)
-		{
-			double alpha_old = alpha[i];
-			alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
-			d = (alpha[i] - alpha_old)*yi;
-			sparse_operator::axpy(d, xi, w);
-		}
-
-	}
-
-
-	printf("Initial*************\n\n");
-
-	double v = 0;
-	int nSV = 0;
-	for(i=0; i<w_size; i++)
-		v += w[i]*w[i];
-	for(i=0; i<l; i++)
-	{
-		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
-		if(alpha[i] > 0)
-			++nSV;
-	}
-	info("Initial objective value = %lf\n",v/2);
-	info("nSV = %d\n",nSV);
-
-	printf("\n\n***************");
-
-	while (iter < max_iter)
-	{
-		PGmax_new = -INF;
-		PGmin_new = INF;
-
-		for (i=0; i<active_size; i++)
-		{
-			int j = i+rand()%(active_size-i);
-			swap(index[i], index[j]);
-		}
-
-		for (s=0; s<active_size; s++)
-		{
-			i = index[s];
-			const schar yi = y[i];
-			feature_node * const xi = prob->x[i];
-
-			G = yi*sparse_operator::dot(w, xi)-1;
-
-			C = upper_bound[GETI(i)];
-			G += alpha[i]*diag[GETI(i)];
-
-			PG = 0;
-			if (alpha[i] == 0)
-			{
-				if (G > PGmax_old)
-				{
-					active_size--;
-					swap(index[s], index[active_size]);
-					s--;
-					continue;
-				}
-				else if (G < 0)
-					PG = G;
-			}
-			else if (alpha[i] == C)
-			{
-				if (G < PGmin_old)
-				{
-					active_size--;
-					swap(index[s], index[active_size]);
-					s--;
-					continue;
-				}
-				else if (G > 0)
-					PG = G;
-			}
-			else
-				PG = G;
-
-			PGmax_new = max(PGmax_new, PG);
-			PGmin_new = min(PGmin_new, PG);
-
-			if(fabs(PG) > 1.0e-12)
-			{
-				double alpha_old = alpha[i];
-				alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
-				d = (alpha[i] - alpha_old)*yi;
-				sparse_operator::axpy(d, xi, w);
-			}
-		}
-
-		iter++;
-		if(iter % 10 == 0)
-			info(".");
-
-		if(PGmax_new - PGmin_new <= eps)
-		{
-			if(active_size == l)
-				break;
-			else
-			{
-				active_size = l;
-				info("*");
-				PGmax_old = INF;
-				PGmin_old = -INF;
-				continue;
-			}
-		}
-		PGmax_old = PGmax_new;
-		PGmin_old = PGmin_new;
-		if (PGmax_old <= 0)
-			PGmax_old = INF;
-		if (PGmin_old >= 0)
-			PGmin_old = -INF;
-	}
-
-	info("\noptimization finished, #iter = %d\n",iter);
-	if (iter >= max_iter)
-		info("\nWARNING: reaching max number of iterations\nUsing -s 2 may be faster (also see FAQ)\n\n");
-
-	// calculate objective value
-
-	v = 0;
-	nSV = 0;
-	for(i=0; i<w_size; i++)
-		v += w[i]*w[i];
-	for(i=0; i<l; i++)
-	{
-		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
-		if(alpha[i] > 0)
-			++nSV;
-	}
-	info("Objective value = %lf\n",v/2);
-	info("nSV = %d\n",nSV);
-
-	delete [] QD;
-	//delete [] alpha;
-	delete [] y;
-	delete [] index;
-}
+// #undef GETI
+// #define GETI(i) (y[i]+1)
+// // To support weights for instances, use GETI(i) (i)
+//
+// static void solve_l2r_l1l2_svc(
+// 	const subproblem *prob, double *w, double *alpha, double eps,
+// 	double Cp, double Cn, int solver_type)
+// {
+// 	int l = prob->l;
+// 	int w_size = prob->n;
+// 	int i, s, iter = 0;
+// 	double C, d, G;
+// 	double *QD = new double[l];
+// 	int max_iter = 1000;
+// 	int *index = new int[l];
+// 	//double *alpha = new double[l];
+// 	schar *y = new schar[l];
+// 	int active_size = l;
+//
+// 	// PG: projected gradient, for shrinking and stopping
+// 	double PG;
+// 	double PGmax_old = INF;
+// 	double PGmin_old = -INF;
+// 	double PGmax_new, PGmin_new;
+//
+// 	// default solver_type: L2R_L2LOSS_SVC_DUAL
+// 	double diag[3] = {0.5/Cn, 0, 0.5/Cp};
+// 	double upper_bound[3] = {INF, 0, INF};
+// 	if(solver_type == L2R_L1LOSS_SVC_DUAL)
+// 	{
+// 		diag[0] = 0;
+// 		diag[2] = 0;
+// 		upper_bound[0] = Cn;
+// 		upper_bound[2] = Cp;
+// 	}
+//
+// 	std::vector<int> active_set (0);
+// 	for(i=0; i<l; i++)
+// 	{
+// 		if(prob->y[i] > 0)
+// 		{
+// 			y[i] = +1;
+// 			active_set.push_back(i);
+// 		}
+// 		else
+// 		{
+// 			y[i] = -1;
+// 		}
+// 	}
+//
+// 	// Initial alpha can be set here. Note that
+// 	// 0 <= alpha[i] <= upper_bound[GETI(i)]
+// 	//for(i=0; i<l; i++)
+// 	//	alpha[i] = 0;
+//
+// 	for(i=0; i<w_size; i++)
+// 		w[i] = 0;
+// 	for(i=0; i<l; i++)
+// 	{
+// 		QD[i] = diag[GETI(i)];
+//
+// 		feature_node * const xi = prob->x[i];
+// 		QD[i] += sparse_operator::nrm2_sq(xi);
+// 		sparse_operator::axpy(y[i]*alpha[i], xi, w);
+//
+// 		index[i] = i;
+// 	}
+//
+// 	// initial change
+// 	for(s=0; s<active_set.size(); s++)
+// 	{
+// 		i = index[s];
+// 		const schar yi = y[i];
+// 		feature_node * const xi = prob->x[i];
+//
+// 		G = yi*sparse_operator::dot(w, xi)-1;
+//
+// 		C = upper_bound[GETI(i)];
+// 		G += alpha[i]*diag[GETI(i)];
+//
+// 		if (alpha[i] == 0)
+// 		{
+// 			PG = min(G, 0.0);
+// 		}
+// 		else if(alpha[i] == C)
+// 		{
+// 			PG = max(G, 0.0);
+// 		}
+// 		else
+// 			PG = G;
+//
+// 		if(fabs(PG) > 1.0e-12)
+// 		{
+// 			double alpha_old = alpha[i];
+// 			alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
+// 			d = (alpha[i] - alpha_old)*yi;
+// 			sparse_operator::axpy(d, xi, w);
+// 		}
+//
+// 	}
+//
+//
+// 	printf("Initial*************\n\n");
+//
+// 	double v = 0;
+// 	int nSV = 0;
+// 	for(i=0; i<w_size; i++)
+// 		v += w[i]*w[i];
+// 	for(i=0; i<l; i++)
+// 	{
+// 		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
+// 		if(alpha[i] > 0)
+// 			++nSV;
+// 	}
+// 	info("Initial objective value = %lf\n",v/2);
+// 	info("nSV = %d\n",nSV);
+//
+// 	printf("\n\n***************");
+//
+// 	while (iter < max_iter)
+// 	{
+// 		PGmax_new = -INF;
+// 		PGmin_new = INF;
+//
+// 		for (i=0; i<active_size; i++)
+// 		{
+// 			int j = i+rand()%(active_size-i);
+// 			swap(index[i], index[j]);
+// 		}
+//
+// 		for (s=0; s<active_size; s++)
+// 		{
+// 			i = index[s];
+// 			const schar yi = y[i];
+// 			feature_node * const xi = prob->x[i];
+//
+// 			G = yi*sparse_operator::dot(w, xi)-1;
+//
+// 			C = upper_bound[GETI(i)];
+// 			G += alpha[i]*diag[GETI(i)];
+//
+// 			PG = 0;
+// 			if (alpha[i] == 0)
+// 			{
+// 				if (G > PGmax_old)
+// 				{
+// 					active_size--;
+// 					swap(index[s], index[active_size]);
+// 					s--;
+// 					continue;
+// 				}
+// 				else if (G < 0)
+// 					PG = G;
+// 			}
+// 			else if (alpha[i] == C)
+// 			{
+// 				if (G < PGmin_old)
+// 				{
+// 					active_size--;
+// 					swap(index[s], index[active_size]);
+// 					s--;
+// 					continue;
+// 				}
+// 				else if (G > 0)
+// 					PG = G;
+// 			}
+// 			else
+// 				PG = G;
+//
+// 			PGmax_new = max(PGmax_new, PG);
+// 			PGmin_new = min(PGmin_new, PG);
+//
+// 			if(fabs(PG) > 1.0e-12)
+// 			{
+// 				double alpha_old = alpha[i];
+// 				alpha[i] = min(max(alpha[i] - G/QD[i], 0.0), C);
+// 				d = (alpha[i] - alpha_old)*yi;
+// 				sparse_operator::axpy(d, xi, w);
+// 			}
+// 		}
+//
+// 		iter++;
+// 		if(iter % 10 == 0)
+// 			info(".");
+//
+// 		if(PGmax_new - PGmin_new <= eps)
+// 		{
+// 			if(active_size == l)
+// 				break;
+// 			else
+// 			{
+// 				active_size = l;
+// 				info("*");
+// 				PGmax_old = INF;
+// 				PGmin_old = -INF;
+// 				continue;
+// 			}
+// 		}
+// 		PGmax_old = PGmax_new;
+// 		PGmin_old = PGmin_new;
+// 		if (PGmax_old <= 0)
+// 			PGmax_old = INF;
+// 		if (PGmin_old >= 0)
+// 			PGmin_old = -INF;
+// 	}
+//
+// 	info("\noptimization finished, #iter = %d\n",iter);
+// 	if (iter >= max_iter)
+// 		info("\nWARNING: reaching max number of iterations\nUsing -s 2 may be faster (also see FAQ)\n\n");
+//
+// 	// calculate objective value
+//
+// 	v = 0;
+// 	nSV = 0;
+// 	for(i=0; i<w_size; i++)
+// 		v += w[i]*w[i];
+// 	for(i=0; i<l; i++)
+// 	{
+// 		v += alpha[i]*(alpha[i]*diag[GETI(i)] - 2);
+// 		if(alpha[i] > 0)
+// 			++nSV;
+// 	}
+// 	info("Objective value = %lf\n",v/2);
+// 	info("nSV = %d\n",nSV);
+//
+// 	delete [] QD;
+// 	//delete [] alpha;
+// 	delete [] y;
+// 	delete [] index;
+// }
 
 
 // transpose matrix X from row format to column format
@@ -1778,7 +1778,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			fun_obj=new l2r_l2_svc_fun(prob, C);
 			TRON tron_obj(fun_obj, primal_solver_tol, eps_cg);
 			tron_obj.set_print_string(liblinear_print_string);
-			tron_obj.gd(w, start_time);
+			tron_obj.gd(w);
 			delete fun_obj;
 			delete[] C;
 			break;
@@ -3011,7 +3011,7 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		&& param->solver_type != L2R_L2LOSS_SVC
 		&& param->solver_type != L1R_L2LOSS_SVC
 		&& param->solver_type != L1R_LR
-		&& param->solver_type != L2R_L2L2R_L2LOSS_SVC_GD)
+		&& param->solver_type != L2R_L2LOSS_SVC_GD)
 		return "unknown solver type";
 
 	if(param->init_sol != NULL
