@@ -350,6 +350,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 			// 	param.eps = 0.1;
 			// 	break;
 		}
+	}
 }
 
 // read in a problem (in libsvm format)
