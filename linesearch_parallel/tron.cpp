@@ -80,7 +80,7 @@ void TRON::gd(double *w)
 	fun_obj->grad(w, g);
 	double gnorm = dnrm2_(&n, g, &inc);
 
-	printf("initial gnorm: %4.8e, f: %4.8e\n",gnorm, f);
+	//printf("initial gnorm: %4.8e, f: %4.8e\n",gnorm, f);
 
 	if (gnorm <= eps*gnorm0)
 		search = 0;
@@ -97,7 +97,7 @@ void TRON::gd(double *w)
 		for(int i=0; i<n; i++)
 			s[i] = -g[i];
 		step_size = fun_obj->line_search(s, w, g, init_step_size, &fnew);
-		printf("stepsize: %1.3e\n", step_size);
+		//printf("stepsize: %1.3e\n", step_size);
 		//line_time = clock() - line_time;
 		actred = f - fnew;
 
@@ -118,7 +118,7 @@ void TRON::gd(double *w)
 		fun_obj->grad(w, g);
 
 		gnorm = dnrm2_(&n, g, &inc);
-		printf("gnorm: %4.8e, f: %4.8e\n",gnorm, f);
+		//printf("gnorm: %4.8e, f: %4.8e\n",gnorm, f);
 		if (gnorm <= eps*gnorm0)
 			break;
 		if (f < -1.0e+32)
