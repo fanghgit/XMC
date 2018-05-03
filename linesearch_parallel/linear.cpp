@@ -1722,12 +1722,12 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 	function *fun_obj=NULL;
 	switch(param->solver_type)
 	{
-		case L2R_L2LOSS_SVC_DUAL:
-			solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L2LOSS_SVC_DUAL);
-			break;
-		case L2R_L1LOSS_SVC_DUAL:
-			solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L1LOSS_SVC_DUAL);
-			break;
+		// case L2R_L2LOSS_SVC_DUAL:
+		// 	solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L2LOSS_SVC_DUAL);
+		// 	break;
+		// case L2R_L1LOSS_SVC_DUAL:
+		// 	solve_l2r_l1l2_svc(prob, w, alpha, eps, Cp, Cn, L2R_L1LOSS_SVC_DUAL);
+		// 	break;
 		case L2R_LR:
 		{
 			double *C = new double[prob->l];
@@ -1847,32 +1847,32 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	if(nodes[child+1].children.size() > 0)
 	{
 		nodes[child+1].w = Malloc(double, w_size);
-		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-			nodes[child+1].alpha = Malloc(double, l);
+		// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		// 	nodes[child+1].alpha = Malloc(double, l);
 	}
 	// initialize w
 	double *w=Malloc(double, w_size);
 	// initialize alpha
-	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-		alpha = Malloc(double, l);
+	// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+	// 	alpha = Malloc(double, l);
 
 	if(parent == -1)
 	{
 		for(int j=0; j<w_size; j++)
 			w[j] = 0;
-		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-		{
-			for(int j=0; j<l; j++)
-				alpha[j] = 0;
-		}
+		// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		// {
+		// 	for(int j=0; j<l; j++)
+		// 		alpha[j] = 0;
+		// }
 	}
 	else
 	{
 		for(int j=0; j<w_size; j++)
 			w[j] = nodes[parent].w[j];
-		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-			for(int j=0; j<l; j++)
-				alpha[j] = nodes[parent].alpha[j];
+		// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		// 	for(int j=0; j<l; j++)
+		// 		alpha[j] = nodes[parent].alpha[j];
 	}
 
 	train_one(&sub_prob_omp, param, w, alpha, weighted_C[child], param->C);
@@ -1884,9 +1884,9 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	{
 		for(int j=0; j<w_size; j++)
 			nodes[child+1].w[j] = w[j];
-		if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-			for(int j=0; j<l; j++)
-				nodes[child+1].alpha[j] = alpha[j];
+		// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+		// 	for(int j=0; j<l; j++)
+		// 		nodes[child+1].alpha[j] = alpha[j];
 	}
 
 	int nzcount = 0;
@@ -2160,8 +2160,8 @@ model* train(const problem *prob, const parameter *param)
 
 	// calculate for w0, initial problem;
 	nodes[0].w = Malloc(double, w_size);
-	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-		nodes[0].alpha = Malloc(double, l);
+	// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+	// 	nodes[0].alpha = Malloc(double, l);
 
 	subproblem sub_prob_omp;
 	sub_prob_omp.l = l;
@@ -2174,9 +2174,9 @@ model* train(const problem *prob, const parameter *param)
 		nodes[0].w[j] = 0;
 	}
 	// initialize alpha
-	if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
-		for(j=0;j<l;j++)
-			nodes[0].alpha[j] = 0;
+	// if(param->solver_type == L2R_L2LOSS_SVC_DUAL || param->solver_type == L2R_L1LOSS_SVC_DUAL)
+	// 	for(j=0;j<l;j++)
+	// 		nodes[0].alpha[j] = 0;
 
 
 	for(k=0; k <sub_prob.l; k ++){
@@ -3006,11 +3006,12 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		return "p < 0";
 
 	if(param->solver_type != L2R_LR
-		&& param->solver_type != L2R_L2LOSS_SVC_DUAL
-		&& param->solver_type != L2R_L1LOSS_SVC_DUAL
+		// && param->solver_type != L2R_L2LOSS_SVC_DUAL
+		// && param->solver_type != L2R_L1LOSS_SVC_DUAL
 		&& param->solver_type != L2R_L2LOSS_SVC
 		&& param->solver_type != L1R_L2LOSS_SVC
-		&& param->solver_type != L1R_LR)
+		&& param->solver_type != L1R_LR
+		&& param->solver_type != L2R_L2L2R_L2LOSS_SVC_GD)
 		return "unknown solver type";
 
 	if(param->init_sol != NULL
