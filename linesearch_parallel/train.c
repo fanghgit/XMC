@@ -314,6 +314,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 				break;
 			case L2R_L2LOSS_SVC_GD:
 				param.eps = 1.0;
+				break;
 			// case L2R_L2LOSS_SVC_DUAL:
 			// 	param.eps = 0.1;
 			// 	break;
@@ -340,6 +341,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 					break;
 				case L2R_L2LOSS_SVC_GD:
 					param.eps2 = 0.0001;
+					break;
 				// case L2R_L2LOSS_SVC_DUAL:
 				// 	param.eps = 0.1;
 				// 	break;
