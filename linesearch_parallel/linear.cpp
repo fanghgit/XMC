@@ -1764,6 +1764,25 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 			delete[] C;
 			break;
 		}
+		case L2R_L2LOSS_SVC_GD:
+		{
+			printf("using GD\n");
+			double *C = new double[prob->l];
+			for(int i = 0; i < prob->l; i++)
+			{
+				if(prob->y[i] > 0)
+					C[i] = Cp;
+				else
+					C[i] = Cn;
+			}
+			fun_obj=new l2r_l2_svc_fun(prob, C);
+			TRON tron_obj(fun_obj, primal_solver_tol, eps_cg);
+			tron_obj.set_print_string(liblinear_print_string);
+			tron_obj.gd(w, start_time);
+			delete fun_obj;
+			delete[] C;
+			break;
+		}
 		case L1R_L2LOSS_SVC:
 		{
 			subproblem prob_col;

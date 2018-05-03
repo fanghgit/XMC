@@ -302,27 +302,51 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 		{
 			case L2R_LR:
         param.eps = 1.0;
-				param.eps2 = 0.0001;
         break;
 			case L2R_L2LOSS_SVC:
 				param.eps = 1.0;
-				param.eps2 = 0.0001;
 				break;
 			case L1R_L2LOSS_SVC:
         param.eps = 1.0;
-				param.eps2 = 0.0001;
         break;
       case L1R_LR:
 				param.eps = 1.0;
-				param.eps2 = 0.0001;
 				break;
-			case L2R_L2LOSS_SVC_DUAL:
-				param.eps = 0.1;
-				break;
-			case L2R_L1LOSS_SVC_DUAL:
-				param.eps = 0.1;
-				break;
+			case L2R_L2LOSS_SVC_GD:
+				param.eps = 1.0;
+			// case L2R_L2LOSS_SVC_DUAL:
+			// 	param.eps = 0.1;
+			// 	break;
+			// case L2R_L1LOSS_SVC_DUAL:
+			// 	param.eps = 0.1;
+			// 	break;
 		}
+
+		if(param.eps2 == INF)
+		{
+			switch(param.solver_type)
+			{
+				case L2R_LR:
+					param.eps2 = 0.0001;
+	        break;
+				case L2R_L2LOSS_SVC:
+					param.eps2 = 0.0001;
+					break;
+				case L1R_L2LOSS_SVC:
+					param.eps2 = 0.0001;
+	        break;
+	      case L1R_LR:
+					param.eps2 = 0.0001;
+					break;
+				case L2R_L2LOSS_SVC_GD:
+					param.eps2 = 0.0001;
+				// case L2R_L2LOSS_SVC_DUAL:
+				// 	param.eps = 0.1;
+				// 	break;
+				// case L2R_L1LOSS_SVC_DUAL:
+				// 	param.eps = 0.1;
+				// 	break;
+			}
 	}
 }
 
