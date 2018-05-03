@@ -94,7 +94,9 @@ void TRON::gd(double *w)
 		//daxpy_(&n, &one, s, &inc, w_new, &inc);
 
 		//clock_t line_time = clock();
-		step_size = fun_obj->line_search(g, w, g, init_step_size, &fnew);
+		for(int i=0; i<n; i++)
+			s[i] = -g[i];
+		step_size = fun_obj->line_search(s, w, g, init_step_size, &fnew);
 		printf("stepsize: %1.3e\n", step_size);
 		//line_time = clock() - line_time;
 		actred = f - fnew;
