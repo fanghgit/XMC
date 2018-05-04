@@ -2401,7 +2401,7 @@ model* train(const problem *prob, const parameter *param)
 static const char *solver_type_table[]=
 {
 	"L2R_LR", "L2R_L2LOSS_SVC",
-	"L1R_L2LOSS_SVC", "L1R_LR",
+	"L1R_L2LOSS_SVC", "L1R_LR", "L2R_L2LOSS_SVC_GD",
 	"", "", "", NULL
 };
 
