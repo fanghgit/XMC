@@ -100,7 +100,7 @@ void TRON::gd(double *w)
 		//clock_t line_time = clock();
 
 		for(int i=0; i<n; i++)
-			w[i] -= stepsize*g[i];
+			w[i] -= step_size*g[i];
 			//s[i] = -g[i];
 		//step_size = fun_obj->line_search(s, w, g, init_step_size, &fnew);  //fangh comment out
 
