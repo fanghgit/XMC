@@ -90,7 +90,7 @@ void TRON::gd(double *w)
 	//double *w_new = new double[n];
 
 	//constant stepsize:
-	L = 0.25 + 1.0;
+	double L = 0.25 + 1.0;
 	step_size = 1/L;
 	while (iter <= max_iter && search)
 	{
