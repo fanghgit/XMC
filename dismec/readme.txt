@@ -362,7 +362,7 @@ class
 
 
 
-./linesearch_parallel/train -B 1 -s 4 -P 10 -x 0 -e 1.0 0.0001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu.model
+./linesearch_parallel/train -B 1 -s 4 -P 1 -x 0 -e 1.0 0.001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu.model
 
 
 L2L1: 132.016738 s
@@ -374,6 +374,8 @@ LogL2: 48.276696s
 
 
 GD: 357.427042 s
+GDx2: 440.990475
+GDx1: 453.254421
 
 
 
