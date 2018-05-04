@@ -88,18 +88,26 @@ void TRON::gd(double *w)
 	iter = 1;
 	// calculate gradient norm at w=0 for stopping condition.
 	//double *w_new = new double[n];
+
+	//constant stepsize:
+	L = 0.25 + 1.0;
+	step_size = 1/L;
 	while (iter <= max_iter && search)
 	{
 		//memcpy(w_new, w, sizeof(double)*n);
 		//daxpy_(&n, &one, s, &inc, w_new, &inc);
 
 		//clock_t line_time = clock();
+
 		for(int i=0; i<n; i++)
-			s[i] = -g[i];
-		step_size = fun_obj->line_search(s, w, g, init_step_size, &fnew);
+			w[i] -= stepsize*g[i];
+			//s[i] = -g[i];
+		//step_size = fun_obj->line_search(s, w, g, init_step_size, &fnew);  //fangh comment out
+
+
 		//printf("stepsize: %1.3e\n", step_size);
 		//line_time = clock() - line_time;
-		actred = f - fnew;
+		//actred = f - fnew;
 
 		if (step_size == 0)
 		{
