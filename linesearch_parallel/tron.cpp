@@ -118,7 +118,7 @@ void TRON::gd(double *w)
 		fun_obj->grad(w, g);
 
 		gnorm = dnrm2_(&n, g, &inc);
-		printf("gnorm: %4.8e, f: %4.8e\n",gnorm, f);
+		//printf("gnorm: %4.8e, f: %4.8e\n",gnorm, f);
 		if (gnorm <= eps*gnorm0)
 			break;
 		if (f < -1.0e+32)
