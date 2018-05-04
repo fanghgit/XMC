@@ -1775,7 +1775,7 @@ static void train_one(const subproblem *prob, const parameter *param, double *w,
 				else
 					C[i] = Cn;
 			}
-			fun_obj=new l2r_l2_svc_fun(prob, C);
+			fun_obj=new l2r_lr_fun(prob, C);
 			TRON tron_obj(fun_obj, primal_solver_tol, eps_cg);
 			tron_obj.set_print_string(liblinear_print_string);
 			tron_obj.gd(w);
