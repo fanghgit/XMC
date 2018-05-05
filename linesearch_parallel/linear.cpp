@@ -2221,29 +2221,29 @@ model* train(const problem *prob, const parameter *param)
 	omp_set_num_threads(param->n_threads);
 
 
-	// accuracy test
-	int kk = 1022;
-	subproblem sub_prob_omp2;
-	sub_prob_omp2.l = l;
-	sub_prob_omp2.n = n;
-	sub_prob_omp2.x = prob->x;
-	sub_prob_omp2.y = Malloc(double,l);
-
-	for(int k=0; k <l; k ++){
-		sub_prob_omp2.y[k] = -1;
-	}
-
-	int jj;
-	for(jj=0; jj < classCount[kk]; jj++){
-		int ind = labelInd[kk][jj];
-		sub_prob_omp2.y[ind] = +1;
-	}
-	double * alpha = NULL;
-	train_one(&sub_prob_omp2, param, nodes[0].w, alpha, weighted_C[kk], param->C);
-
-	printf("accuracy test ends!");
-
-	// accuracy test ends
+	// // accuracy test
+	// int kk = 1022;
+	// subproblem sub_prob_omp2;
+	// sub_prob_omp2.l = l;
+	// sub_prob_omp2.n = n;
+	// sub_prob_omp2.x = prob->x;
+	// sub_prob_omp2.y = Malloc(double,l);
+	//
+	// for(int k=0; k <l; k ++){
+	// 	sub_prob_omp2.y[k] = -1;
+	// }
+	//
+	// int jj;
+	// for(jj=0; jj < classCount[kk]; jj++){
+	// 	int ind = labelInd[kk][jj];
+	// 	sub_prob_omp2.y[ind] = +1;
+	// }
+	// double * alpha = NULL;
+	// train_one(&sub_prob_omp2, param, nodes[0].w, alpha, weighted_C[kk], param->C);
+	//
+	// printf("accuracy test ends!");
+	//
+	// // accuracy test ends
 
 
 	#pragma omp parallel for schedule(dynamic,1)
