@@ -2223,25 +2223,25 @@ model* train(const problem *prob, const parameter *param)
 
 	// accuracy test
 	int kk = 1022;
-	subproblem sub_prob_omp;
-	sub_prob_omp.l = l;
-	sub_prob_omp.n = n;
-	sub_prob_omp.x = prob->x;
-	sub_prob_omp.y = Malloc(double,l);
+	subproblem sub_prob_omp2;
+	sub_prob_omp2.l = l;
+	sub_prob_omp2.n = n;
+	sub_prob_omp2.x = prob->x;
+	sub_prob_omp2.y = Malloc(double,l);
 
 	for(int k=0; k <l; k ++){
-		sub_prob_omp.y[k] = -1;
+		sub_prob_omp2.y[k] = -1;
 	}
 
 	int jj;
 	for(jj=0; jj < classCount[kk]; jj++){
 		int ind = labelInd[kk][jj];
-		sub_prob_omp.y[ind] = +1;
+		sub_prob_omp2.y[ind] = +1;
 	}
 
-	train_one(&sub_prob_omp, param, node[0].w, weighted_C[kk], param->C);
+	train_one(&sub_prob_omp2, param, node[0].w, weighted_C[kk], param->C);
 
-	printf("accuracy test ends!")
+	printf("accuracy test ends!");
 
 	// accuracy test ends
 
