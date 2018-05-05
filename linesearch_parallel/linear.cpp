@@ -2220,6 +2220,32 @@ model* train(const problem *prob, const parameter *param)
 
 	omp_set_num_threads(param->n_threads);
 
+
+	// accuracy test
+	int kk = 1022;
+	subproblem sub_prob_omp;
+	sub_prob_omp.l = l;
+	sub_prob_omp.n = n;
+	sub_prob_omp.x = prob->x;
+	sub_prob_omp.y = Malloc(double,l);
+
+	for(int k=0; k <l; k ++){
+		sub_prob_omp.y[k] = -1;
+	}
+
+	int jj;
+	for(jj=0; jj < classCount[kk]; jj++){
+		int ind = labelInd[kk][jj];
+		sub_prob_omp.y[ind] = +1;
+	}
+
+	train_one(&sub_prob_omp, param, node[0].w, weighted_C[kk], param->C);
+
+	printf("accuracy test ends!")
+
+	// accuracy test ends
+
+
 	#pragma omp parallel for schedule(dynamic,1)
 	for(int kk=0; kk<subroots.size(); kk++)
 	{

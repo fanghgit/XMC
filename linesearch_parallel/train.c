@@ -166,6 +166,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 	param.solver_type = L2R_L2LOSS_SVC;
 	param.C = 1;
 	param.eps = INF; // see setting below
+	param.eps2 = INF;
 	param.p = 0.1;
 	param.nr_weight = 0;
 	param.weight_label = NULL;

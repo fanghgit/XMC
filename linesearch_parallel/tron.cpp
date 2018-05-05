@@ -170,6 +170,7 @@ void TRON::tron(double *w, clock_t start_time)
 	fun_obj->grad(w, g);
 	double gnorm = dnrm2_(&n, g, &inc);
 
+	printf("initial gnorm: %4.8e, f: %4.8e\n",gnorm, f);
 	if (gnorm <= eps*gnorm0)
 		search = 0;
 
@@ -207,6 +208,7 @@ void TRON::tron(double *w, clock_t start_time)
 		fun_obj->grad(w, g);
 
 		gnorm = dnrm2_(&n, g, &inc);
+		printf("gnorm: %4.8e, f: %4.8e\n",gnorm, f);
 		if (gnorm <= eps*gnorm0)
 			break;
 		if (f < -1.0e+32)
