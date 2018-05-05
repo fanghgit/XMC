@@ -2238,8 +2238,8 @@ model* train(const problem *prob, const parameter *param)
 		int ind = labelInd[kk][jj];
 		sub_prob_omp2.y[ind] = +1;
 	}
-
-	train_one(&sub_prob_omp2, param, nodes[0].w, weighted_C[kk], param->C);
+	double * alpha = NULL;
+	train_one(&sub_prob_omp2, param, nodes[0].w, alpha, weighted_C[kk], param->C);
 
 	printf("accuracy test ends!");
 
