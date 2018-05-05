@@ -1877,6 +1877,19 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	train_one(&sub_prob_omp, param, w, alpha, weighted_C[child], param->C);
 
+	// test distance
+	double d1 = 0;
+	for(int ll=0; ll<w_size; ll++)
+		d1 += w[ll]*w[ll];
+
+	printf("distance to 0: %4.5e\n", sqrt(d1));
+
+	double d2 = 0;
+	for(int ll=0; ll<w_size; ll++)
+		d2 += (w[ll] - nodes[parent].w[ll])*(w[ll] - nodes[parent].w[ll]);
+
+	printf("distance to parent: %4.5e\n", sqrt(d2));
+
 	printf("%ith label finished!\n", child+1);
 
 
