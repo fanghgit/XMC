@@ -1526,6 +1526,11 @@ static void transpose(const subproblem *prob, feature_node **x_space_ret, subpro
 // solve MST problem
 void order_schedule(const problem *prob, const parameter *param, int nr_class, label_node* nodes)
 {
+	// dense sheduling
+	int l = prob->l;
+	std::vector<std::vector<double> > dist_mat (nr_class);
+
+
 	int l = prob->l;
 	int num_all_labels = 0;
 	int nnz_upper_bound = 0;
@@ -1875,6 +1880,24 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 		// 		alpha[j] = nodes[parent].alpha[j];
 	}
 
+	// perceptron
+
+	for(jj=0; jj < classCount[child]; jj++){
+		int ind = labelInd[child][jj];
+		//sub_prob_omp.y[ind] = +1;
+		feature_node *x_tmp = prob->x[ind];
+		pred = sparse_operator::dot(w, x_tmp)
+		if(pred < 0)
+		{
+			while(x_tmp->index != -1)
+			{
+				w[x->index-1] += x_tmp->value;
+				x_tmp++;
+			}
+		}
+	}
+
+
 	train_one(&sub_prob_omp, param, w, alpha, weighted_C[child], param->C);
 
 	// test distance
@@ -1892,9 +1915,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 		printf("distance to parent: %4.5e\n", sqrt(d2));
 	}
 
-
 	printf("%ith label finished!\n", child+1);
-
 
 	if(nodes[child+1].children.size() > 0)
 	{
@@ -1907,7 +1928,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 
 	int nzcount = 0;
 	for(int j=0;j<w_size;j++){
-		if(fabs(w[j]) < 0.01){
+		if(fabs(w[j]) < 0.0){
 			w[j]=0;
 		}
 		else
