@@ -1886,7 +1886,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 		int ind = labelInd[child][jj];
 		//sub_prob_omp.y[ind] = +1;
 		feature_node *x_tmp = prob->x[ind];
-		pred = sparse_operator::dot(w, x_tmp)
+		double pred = sparse_operator::dot(w, x_tmp);
 		if(pred < 0)
 		{
 			while(x_tmp->index != -1)
