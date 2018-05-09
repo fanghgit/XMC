@@ -1891,7 +1891,7 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 		{
 			while(x_tmp->index != -1)
 			{
-				w[x->index-1] += x_tmp->value;
+				w[x_tmp->index-1] += x_tmp->value;
 				x_tmp++;
 			}
 		}
