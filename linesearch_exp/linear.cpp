@@ -186,6 +186,8 @@ int Graph::kruskalMST(){
     std::vector<std::pair<int,std::pair<int,int> > >::iterator it;
 		//auto it;
 		// for all edges in G
+		long long count = 0;
+
     for(it = edges.begin(); it!=edges.end();it++){
         int u = it->second.first;
         int v = it->second.second;
@@ -201,6 +203,9 @@ int Graph::kruskalMST(){
 
             ds.Union(setU,setV);
         }
+				count++;
+				if(count % 1000000 == 0)
+					printf("%ld edges finished\n", count);
     }
     return MSTWeight;
 }
