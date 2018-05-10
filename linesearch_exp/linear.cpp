@@ -1533,14 +1533,14 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 
 	int l = prob->l;
 	int num_all_labels = 0;
-	int nnz_upper_bound = 0;
+	long long nnz_upper_bound = 0;
 	for(int i=0; i<l; i++)
 	{
 		num_all_labels += prob->numLabels[i];
 		nnz_upper_bound += prob->numLabels[i] * prob->numLabels[i];
 	}
 	printf("naive upper bound: %d\n", num_all_labels);
-	printf("nnz upper bound: %d\n", nnz_upper_bound);
+	printf("nnz upper bound: %ld\n", nnz_upper_bound);
 
 	// brute force
 	//std::unordered_map< pair<int, int>, int > hashmap;
@@ -1634,6 +1634,8 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 			}
 		}
 	}
+
+	dist_mat.clear();
 	printf("adding edge complete\n");
 
 	int weight = g.kruskalMST();
