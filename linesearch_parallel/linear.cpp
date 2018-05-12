@@ -169,8 +169,15 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 {
 	if(lhs.first < rhs.first)
 		return true;
-	else if((lhs.first == rhs.first) && (lhs.second.first == 0 || lhs.second.second == 0)) // give priority to label 0
-		return true;
+	else if((lhs.first == rhs.first)) // give priority to label 0
+	{
+		if(lhs.second.first == 0 && rhs.second.first != 0)
+			return true;
+		else if(lhs.second.first !=0 && rhs.second.first == 0)
+			return false;
+		else
+			return lhs.second.second < rhs.second.second;
+	}
 	else
 		return false;
 }
