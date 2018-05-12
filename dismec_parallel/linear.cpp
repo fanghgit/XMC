@@ -169,8 +169,15 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 {
 	if(lhs.first < rhs.first)
 		return true;
-	else if((lhs.first == rhs.first) && (lhs.second.first == 0 || lhs.second.second == 0)) // give priority to label 0
-		return true;
+	else if((lhs.first == rhs.first)) // give priority to label 0
+	{
+		if(lhs.second.first == 0 && rhs.second.first != 0)
+			return true;
+		else if(lhs.second.first !=0 && rhs.second.first == 0)
+			return false;
+		else
+			return lhs.second.second < rhs.second.second;
+	}
 	else
 		return false;
 }
@@ -1603,14 +1610,14 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 {
 	int l = prob->l;
 	int num_all_labels = 0;
-	int nnz_upper_bound = 0;
+	long long nnz_upper_bound = 0;
 	for(int i=0; i<l; i++)
 	{
 		num_all_labels += prob->numLabels[i];
 		nnz_upper_bound += prob->numLabels[i] * prob->numLabels[i];
 	}
 	printf("naive upper bound: %d\n", num_all_labels);
-	printf("nnz upper bound: %d\n", nnz_upper_bound);
+	printf("nnz upper bound: %ld\n", nnz_upper_bound);
 
 	// brute force
 	//std::unordered_map< pair<int, int>, int > hashmap;
@@ -1668,7 +1675,7 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 		dist_mat[i][0] = num_pos_per_label[i];
 		Ecount += 1;
 	}
-	int E = (int) Ecount;
+	long long E = (long long) Ecount;
 
 
 	//construct ordered distance vector

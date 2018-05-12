@@ -362,7 +362,7 @@ class
 
 
 
-./linesearch_parallel/train -B 1 -s 4 -P 1 -x 0 -e 1.0 0.001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu.model
+./linesearch_parallel/train -B 1 -P 1 -x 0 -e 1.0 0.0001 data/eurlex/train_remap_tfidf.txt linesearch_parallel/models/eu.model
 
 
 L2L1: 132.016738 s
@@ -901,3 +901,15 @@ WARNING: line search fails
 num iter: 14
 time spent on train one: 11.580397
 accuracy test ends!
+
+
+
+./util/a.out 9999999 20000000
+
+717032598
+
+350000000
+
+400000000
+
+2147483647
