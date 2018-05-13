@@ -184,8 +184,9 @@ bool comp(const std::pair<int, std::pair<int,int> > &lhs, const std::pair<int, s
 
 int Graph::kruskalMST(){
     int MSTWeight = 0; //sum of all vertex weights
-    std::sort(edges.begin(),edges.end(), comp);
-		//printf("|E| in kruskal: %d\n", edges.size());
+		printf("before sorting\n");
+		std::sort(edges.begin(),edges.end(), comp);
+		printf("|E| in kruskal: %d\n", edges.size());
     //for all u in G_v
     //    MAKE-SET(u)
     DisjointSet ds(this->V);
@@ -1638,6 +1639,10 @@ void order_schedule(const problem *prob, const parameter *param, int nr_class, l
 	}
 	printf("adding edge complete\n");
 
+	std::vector<std::unordered_map<int, int> >().swap(dist_mat);
+
+	printf("free complete\n");
+
 	int weight = g.kruskalMST();
 	printf("weight of MST is: %d\n", weight);
 
@@ -1885,19 +1890,19 @@ void dfs(model *model_, const problem *prob, const parameter *param, label_node*
 	train_one(&sub_prob_omp, param, w, alpha, weighted_C[child], param->C);
 
 	// test distance
-	if(parent != -1){
-		double d1 = 0;
-		for(int ll=0; ll<w_size; ll++)
-			d1 += w[ll]*w[ll];
-
-		printf("distance to 0: %4.5e\n", sqrt(d1));
-
-		double d2 = 0;
-		for(int ll=0; ll<w_size; ll++)
-			d2 += (w[ll] - nodes[parent].w[ll])*(w[ll] - nodes[parent].w[ll]);
-
-		printf("distance to parent: %4.5e\n", sqrt(d2));
-	}
+	// if(parent != -1){
+	// 	double d1 = 0;
+	// 	for(int ll=0; ll<w_size; ll++)
+	// 		d1 += w[ll]*w[ll];
+	//
+	// 	printf("distance to 0: %4.5e\n", sqrt(d1));
+	//
+	// 	double d2 = 0;
+	// 	for(int ll=0; ll<w_size; ll++)
+	// 		d2 += (w[ll] - nodes[parent].w[ll])*(w[ll] - nodes[parent].w[ll]);
+	//
+	// 	printf("distance to parent: %4.5e\n", sqrt(d2));
+	// }
 
 
 	printf("%ith label finished!\n", child+1);

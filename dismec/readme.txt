@@ -913,3 +913,7 @@ accuracy test ends!
 400000000
 
 2147483647
+
+
+number of subtrees: 496573
+height of the whole tree: 33
