@@ -19,7 +19,7 @@ Do if-idf transformation:
   ```
   $ python util/transform.py data/eurlex/train_remap.txt data/eurlex/test_remap.txt data/eurlex/train_remap_tfidf.txt data/eurlex/test_remap_tfidf.txt
   ```
-Go to linesearch folder and type `make` to build executable(will generate many warnings now)
+Go to linesearch folder and type `make` to build executable.
 
 Create folder to hold models: `mkdir linesearch_parallel/models`
 
@@ -60,6 +60,7 @@ Training with MST initialization for EURLex:
 By using `-x 1` or `-x 2`, training should be able to finish in around 200 sec.
 
 **Remark:** `-B 1` or `-B 0.1` will not change prediction accuracy, but it will affect model size significantly, `-B 0.1` will make our algorithm faster since the # of iterations relies on $$\|x\|_2$$, but `-B 0.1` will increase the model size.
+
 
 **Stopping criterion**
 
