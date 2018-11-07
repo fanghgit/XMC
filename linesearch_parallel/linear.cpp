@@ -2804,7 +2804,7 @@ struct feature_node **load_w(const char *model_file_name)
     }
   }
   //printf("test load model: W[0]->index: %d\n", (W[0]+1)->index);
-	printf("total # nnz: %lf\n", total_nz);
+	printf("total # nnz: %ld\n", total_nz);
 	// model_->w=Malloc(double, w_size*nr_w);
 	// for(i=0; i<w_size; i++)
 	// {
@@ -2820,7 +2820,7 @@ struct feature_node **load_w(const char *model_file_name)
 
 	setlocale(LC_ALL, old_locale);
 	free(old_locale);
-  free_and_destroy_model(&model_);
+  //free_and_destroy_model(&model_);
 
 	if (ferror(fp) != 0 || fclose(fp) != 0) return NULL;
 
@@ -2853,9 +2853,10 @@ int ** predict(struct feature_node **x, const model *model_, struct feature_node
   int n = model_->nr_feature;
   int ** res = Malloc(int *, nr_test);
   int i;
-  //printf("start prediction, nr_test = %d\n", nr_test);
+  printf("start prediction, nr_test = %d\n", nr_test);
 	//double *score = Malloc(double, nr_class);
 
+  printf("model_->bias: %d\n", model_->bias);
 	if(model_->bias >=0)
 		n = n+1;
 
