@@ -19,7 +19,7 @@ Do if-idf transformation:
   ```
   $ python util/transform.py data/eurlex/train_remap.txt data/eurlex/test_remap.txt data/eurlex/train_remap_tfidf.txt data/eurlex/test_remap_tfidf.txt
   ```
-Go to linesearch folder and type `make` to build executable.
+Go to linesearch_parallel folder and type `make` to build executable.
 
 Create folder to hold models: `mkdir linesearch_parallel/models`
 
